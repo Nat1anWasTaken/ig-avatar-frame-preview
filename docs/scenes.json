@@ -1,0 +1,136 @@
+[
+  {
+    "id": "desktop-home",
+    "device": "desktop",
+    "scene": "home",
+    "width": 1440,
+    "height": 900,
+    "crops": [
+      {
+        "name": "story-normal",
+        "x": 212.5,
+        "y": 14,
+        "width": 110,
+        "height": 128
+      },
+      {
+        "name": "story-close-friends",
+        "x": 316.5,
+        "y": 14,
+        "width": 110,
+        "height": 128
+      },
+      {
+        "name": "post-author",
+        "x": 285.5,
+        "y": 156,
+        "width": 486,
+        "height": 632
+      },
+      {
+        "name": "own-sidebar",
+        "x": 913.5,
+        "y": 26,
+        "width": 307,
+        "height": 64
+      },
+      {
+        "name": "own-nav",
+        "x": 6,
+        "y": 556,
+        "width": 60,
+        "height": 60
+      }
+    ]
+  },
+  {
+    "id": "desktop-inbox",
+    "device": "desktop",
+    "scene": "inbox",
+    "width": 1440,
+    "height": 900,
+    "crops": [
+      {
+        "name": "note",
+        "x": 184,
+        "y": 106,
+        "width": 112,
+        "height": 156
+      },
+      {
+        "name": "chat-list",
+        "x": 68,
+        "y": 294,
+        "width": 407,
+        "height": 80
+      },
+      {
+        "name": "own-nav",
+        "x": 6,
+        "y": 556,
+        "width": 60,
+        "height": 60
+      }
+    ]
+  },
+  {
+    "id": "mobile-home",
+    "device": "mobile",
+    "scene": "home",
+    "width": 390,
+    "height": 844,
+    "crops": [
+      {
+        "name": "story-normal",
+        "x": 97,
+        "y": 43,
+        "width": 122,
+        "height": 128
+      },
+      {
+        "name": "story-close-friends",
+        "x": 199,
+        "y": 43,
+        "width": 122,
+        "height": 128
+      },
+      {
+        "name": "post-author",
+        "x": 0,
+        "y": 161,
+        "width": 390,
+        "height": 569
+      },
+      {
+        "name": "own-nav",
+        "x": 311,
+        "y": 789,
+        "width": 60,
+        "height": 55
+      }
+    ]
+  },
+  {
+    "id": "mobile-inbox",
+    "device": "mobile",
+    "scene": "inbox",
+    "width": 390,
+    "height": 844,
+    "crops": [
+      {
+        "name": "note",
+        "x": 112,
+        "y": 76,
+        "width": 112,
+        "height": 156
+      },
+      {
+        "name": "chat-list",
+        "x": 0,
+        "y": 264,
+        "width": 390,
+        "height": 80
+      }
+    ]
+  }
+]
