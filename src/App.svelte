@@ -2,13 +2,18 @@
   import scenes from './scenes.json';
   import Editor from './components/Editor.svelte';
   import BottomSheet from './components/BottomSheet.svelte';
-  import DeviceTabs from './components/DeviceTabs.svelte';
+  import Tabs from './components/Tabs.svelte';
   import SceneGroup from './components/SceneGroup.svelte';
-  import { DEVICES } from './lib/assets.js';
+  import { PLATFORMS, DEVICES } from './lib/assets.js';
   import { media } from './lib/media.svelte.js';
 
+  // the platform choice is kept in the URL hash
+  const fromHash = location.hash.slice(1);
+  let platform = $state(PLATFORMS.some((p) => p.key === fromHash) ? fromHash : 'instagram');
+  $effect(() => { history.replaceState(null, '', `#${platform}`); });
+
   let device = $state(media.mobile ? 'mobile' : 'desktop');
-  const current = $derived(DEVICES.find((d) => d.key === device));
+  const description = $derived(PLATFORMS.find((p) => p.key === platform).descriptions[device]);
 </script>
 
 <div class="wrap" class:with-sheet={media.mobile}>
@@ -23,18 +28,19 @@
 
     <main>
       <div class="toolbar">
-        <DeviceTabs bind:value={device} />
-        <p>{current.description}</p>
+        <Tabs options={PLATFORMS} label="平台" bind:value={platform} />
+        <Tabs options={DEVICES} label="裝置" bind:value={device} />
+        <p>{description}</p>
       </div>
-      <!-- only the selected device's scenes are mounted -->
-      {#key device}
-        <SceneGroup {device} scenes={scenes.filter((s) => s.device === device)} />
+      <!-- only the selected platform's and device's scenes are mounted -->
+      {#key platform + device}
+        <SceneGroup {device} scenes={scenes.filter((s) => s.platform === platform && s.device === device)} />
       {/key}
     </main>
   </div>
 
   <footer>
-    畫面是去識別化的 Instagram 網頁靜態快照，所有名稱、照片與內容都是佔位資料。Instagram 是 Meta 的商標，本工具與 Meta 無關。
+    畫面是去識別化的 Instagram 與 Facebook 網頁靜態快照，所有名稱、照片與內容都是佔位資料。Instagram 與 Facebook 是 Meta 的商標，本工具與 Meta 無關。
   </footer>
 </div>
 

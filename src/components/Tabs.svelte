@@ -1,11 +1,9 @@
 <script>
-  import { DEVICES } from '../lib/assets.js';
-
-  let { value = $bindable() } = $props();
+  let { options, label, value = $bindable() } = $props();
 </script>
 
-<div class="tabs" role="tablist" aria-label="裝置">
-  {#each DEVICES as d (d.key)}
+<div class="tabs" role="tablist" aria-label={label}>
+  {#each options as d (d.key)}
     <button type="button" role="tab" aria-selected={value === d.key} onclick={() => { value = d.key; }}>{d.label}</button>
   {/each}
 </div>

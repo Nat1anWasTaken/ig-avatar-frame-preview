@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// Preview an avatar (frame) across Instagram web, purely by rewriting the DOM over CDP.
+// Preview an avatar (frame) across Instagram or Facebook web, purely by rewriting the DOM over CDP.
 // Nothing is uploaded; every change lives only in a throwaway tab that is closed afterwards.
 //
 // Usage:
-//   pnpm screenshots --avatar framed.jpg [--frame frame.png] [--out dir]
+//   pnpm screenshots --avatar framed.jpg [--frame frame.png] [--out dir] [--platform instagram|facebook]
 //        [--username your.username] [--name "Your Name"] [--note "SITCON 2027 見！"]
 //        [--message "Sent an attachment"] [--caption "..."] [--post post.jpg] [--port 9222]
 //
@@ -13,10 +13,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
-import { CDP, browserWsUrl, openTab, prepareScene, SCENES, sleep } from './lib.mjs';
+import { CDP, browserWsUrl, loadPlatform, openTab, prepareScene, sleep } from './lib.mjs';
 
 const { values: args } = parseArgs({
   options: {
+    platform: { type: 'string', default: 'instagram' },
     avatar: { type: 'string' },
     frame: { type: 'string' },
     post: { type: 'string' },
@@ -34,6 +35,7 @@ if (!args.avatar) {
   console.error('usage: pnpm screenshots --avatar <image> [--frame <png>] [--out <dir>]');
   process.exit(1);
 }
+const platform = await loadPlatform(args.platform);
 
 const dataUrl = (file) => {
   const ext = path.extname(file).slice(1).toLowerCase().replace('jpg', 'jpeg');
@@ -54,12 +56,12 @@ const opts = {
 const written = [];
 
 try {
-  for (const sc of SCENES) {
+  for (const sc of platform.SCENES) {
     const tab = await openTab(cdp, sc.device);
     try {
-      const crops = await prepareScene(tab, sc, opts);
+      const crops = await prepareScene(tab, sc, opts, platform);
 
-      const prefix = `${sc.device}-${sc.scene}`;
+      const prefix = `${args.platform}-${sc.device}-${sc.scene}`;
       const save = async (name, clip) => {
         // hidden tabs occasionally hand back an empty (all-black) frame; a black PNG is tiny, so retry
         let data;

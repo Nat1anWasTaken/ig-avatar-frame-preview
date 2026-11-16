@@ -1,5 +1,6 @@
 [
   {
+    "platform": "instagram",
     "id": "desktop-home",
     "device": "desktop",
     "scene": "home",
@@ -44,6 +45,7 @@
     ]
   },
   {
+    "platform": "instagram",
     "id": "desktop-inbox",
     "device": "desktop",
     "scene": "inbox",
@@ -74,6 +76,7 @@
     ]
   },
   {
+    "platform": "instagram",
     "id": "mobile-home",
     "device": "mobile",
     "scene": "home",
@@ -111,6 +114,7 @@
     ]
   },
   {
+    "platform": "instagram",
     "id": "mobile-inbox",
     "device": "mobile",
     "scene": "inbox",
@@ -130,6 +134,157 @@
         "y": 264,
         "width": 390,
         "height": 80
+      }
+    ]
+  },
+  {
+    "platform": "facebook",
+    "id": "desktop-home",
+    "device": "desktop",
+    "scene": "home",
+    "width": 1440,
+    "height": 900,
+    "crops": [
+      {
+        "name": "own-nav",
+        "x": 1370,
+        "y": 0,
+        "width": 68,
+        "height": 62
+      },
+      {
+        "name": "own-sidebar",
+        "x": 0,
+        "y": 64,
+        "width": 348,
+        "height": 68
+      },
+      {
+        "name": "composer",
+        "x": 376,
+        "y": 68,
+        "width": 688,
+        "height": 70
+      },
+      {
+        "name": "post-author",
+        "x": 372,
+        "y": 223.9921875,
+        "width": 696,
+        "height": 656
+      }
+    ]
+  },
+  {
+    "platform": "facebook",
+    "id": "desktop-profile",
+    "device": "desktop",
+    "scene": "profile",
+    "width": 1440,
+    "height": 900,
+    "crops": [
+      {
+        "name": "own-nav",
+        "x": 1370,
+        "y": 0,
+        "width": 68,
+        "height": 62
+      },
+      {
+        "name": "profile-picture",
+        "x": 125,
+        "y": 530.9609375,
+        "width": 200,
+        "height": 200
+      }
+    ]
+  },
+  {
+    "platform": "facebook",
+    "id": "desktop-notifications",
+    "device": "desktop",
+    "scene": "notifications",
+    "width": 1440,
+    "height": 900,
+    "crops": [
+      {
+        "name": "own-nav",
+        "x": 1370,
+        "y": 0,
+        "width": 68,
+        "height": 62
+      },
+      {
+        "name": "notification",
+        "x": 376,
+        "y": 193,
+        "width": 688,
+        "height": 80
+      }
+    ]
+  },
+  {
+    "platform": "facebook",
+    "id": "mobile-home",
+    "device": "mobile",
+    "scene": "home",
+    "width": 390,
+    "height": 844,
+    "crops": [
+      {
+        "name": "composer",
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      {
+        "name": "create-story",
+        "x": 2,
+        "y": 164,
+        "width": 119,
+        "height": 202
+      },
+      {
+        "name": "post-author",
+        "x": 0,
+        "y": 363,
+        "width": 390,
+        "height": 481
+      }
+    ]
+  },
+  {
+    "platform": "facebook",
+    "id": "mobile-profile",
+    "device": "mobile",
+    "scene": "profile",
+    "width": 390,
+    "height": 844,
+    "crops": [
+      {
+        "name": "profile-picture",
+        "x": 99,
+        "y": 179,
+        "width": 204,
+        "height": 204
+      }
+    ]
+  },
+  {
+    "platform": "facebook",
+    "id": "mobile-notifications",
+    "device": "mobile",
+    "scene": "notifications",
+    "width": 390,
+    "height": 844,
+    "crops": [
+      {
+        "name": "notification",
+        "x": 0,
+        "y": 124,
+        "width": 390,
+        "height": 91
       }
     ]
   }

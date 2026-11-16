@@ -1,6 +1,6 @@
 <script>
   import SceneView from './SceneView.svelte';
-  import { LABELS } from '../lib/assets.js';
+  import { label } from '../lib/assets.js';
 
   let { device, scenes } = $props();
 
@@ -14,7 +14,7 @@
   {#each closeups as { sc, crop } (sc.id + crop.name)}
     <figure class="closeup">
       <SceneView scene={sc} {crop} maxWidth={340} />
-      <figcaption>{LABELS[crop.name] || crop.name} · {LABELS[sc.scene]}</figcaption>
+      <figcaption>{label(sc.platform, crop.name)} · {label(sc.platform, sc.scene)}</figcaption>
     </figure>
   {/each}
 </div>
@@ -23,7 +23,7 @@
   {#each scenes as sc (sc.id)}
     <figure class="scene">
       <SceneView scene={sc} />
-      <figcaption>{LABELS[sc.scene]}</figcaption>
+      <figcaption>{label(sc.platform, sc.scene)}</figcaption>
     </figure>
   {/each}
 </div>

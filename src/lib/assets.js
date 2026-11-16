@@ -8,13 +8,28 @@ export const PRESETS = [
   { key: 'none', label: '不加框', src: null },
 ];
 
-export const LABELS = {
-  'home': '首頁', 'inbox': '私訊',
+const LABELS = {
+  'home': '首頁', 'inbox': '私訊', 'profile': '個人檔案', 'notifications': '通知',
   'story-normal': '限時動態', 'story-close-friends': '摯友限時動態', 'post-author': '貼文作者',
   'own-sidebar': '右上角帳號', 'own-nav': '導覽列', 'note': '便利貼', 'chat-list': '聊天列表',
+  'composer': '發文框', 'create-story': '建立限時動態', 'profile-picture': '大頭貼', 'notification': '通知',
+  // Facebook puts the same spots elsewhere
+  'facebook:own-sidebar': '左側選單', 'facebook:own-nav': '右上角帳號',
 };
+export const label = (platform, key) => LABELS[`${platform}:${key}`] || LABELS[key] || key;
+
+export const PLATFORMS = [
+  { key: 'instagram', label: 'Instagram', descriptions: {
+    mobile: '手機瀏覽器上的首頁與私訊',
+    desktop: 'instagram.com 首頁與私訊',
+  } },
+  { key: 'facebook', label: 'Facebook', descriptions: {
+    mobile: '手機瀏覽器上的首頁、個人檔案與通知',
+    desktop: 'facebook.com 首頁、個人檔案與通知。通知列是照 Facebook 的版面填入的示意內容。',
+  } },
+];
 
 export const DEVICES = [
-  { key: 'mobile', label: '手機版', description: '手機瀏覽器上的首頁與私訊' },
-  { key: 'desktop', label: '電腦版', description: 'instagram.com 首頁與私訊' },
+  { key: 'mobile', label: '手機版' },
+  { key: 'desktop', label: '電腦版' },
 ];
