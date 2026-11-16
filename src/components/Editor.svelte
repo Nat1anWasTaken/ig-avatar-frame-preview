@@ -2,9 +2,9 @@
   import AvatarCanvas from './AvatarCanvas.svelte';
   import FilePicker from './FilePicker.svelte';
   import FramePresets from './FramePresets.svelte';
-  import { editor, setPhoto, setFrameFile, setZoom, reset, download } from '../lib/editor.svelte.js';
+  import { editor, setPhoto, setFrameFile, setZoom, download } from '../lib/editor.svelte.js';
 
-  // compact: the bottom-sheet layout, which has its own download button
+  // compact: the side-by-side layout used in the bottom sheet
   let { compact = false } = $props();
 </script>
 
@@ -16,7 +16,7 @@
       <label class="slider">縮放
         <input type="range" data-vaul-no-drag min="1" max="3" step="0.01" value={editor.zoom} oninput={(e) => setZoom(+e.currentTarget.value)}>
       </label>
-      {#if compact}<button class="btn secondary" type="button" onclick={reset}>重設位置</button>{/if}
+      {#if compact}<button class="btn" type="button" onclick={download}>下載頭像</button>{/if}
     </div>
   </div>
 
@@ -35,9 +35,8 @@
   </div>
 
   {#if !compact}
-    <div class="step actions">
-      <button class="btn" type="button" onclick={download}>下載合成後的大頭貼</button>
-      <button class="btn secondary" type="button" onclick={reset}>重設位置</button>
+    <div class="step">
+      <button class="btn" type="button" onclick={download}>下載頭像</button>
     </div>
   {/if}
 </div>
@@ -49,7 +48,6 @@
 
   .slider { display: grid; grid-template-columns: 44px 1fr; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
   .slider input { width: 100%; min-height: 32px; accent-color: var(--accent); }
-  .actions { display: grid; gap: 12px; }
 
   .compact .preview { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: center; }
   .compact .hint { text-align: left; margin: 0 0 8px; }

@@ -48,7 +48,7 @@ function scheduleExport() {
 // offsets are in canvas pixels
 export function pan(x, y) { editor.dx += x; editor.dy += y; render(); }
 export function setZoom(z) { editor.zoom = Math.min(Math.max(z, 1), 3); render(); }
-export function reset() { editor.zoom = 1; editor.dx = editor.dy = 0; render(); }
+function reset() { editor.zoom = 1; editor.dx = editor.dy = 0; render(); }
 
 export async function setPhoto(file) {
   const url = URL.createObjectURL(file);
