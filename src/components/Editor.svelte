@@ -23,6 +23,11 @@
   <div class="step">
     <h2>1 · 大頭貼</h2>
     <FilePicker accept="image/*" title="選擇照片" hint={editor.photoName} thumb={editor.photoThumb} onfile={setPhoto} />
+    <details class="tip">
+      <summary>想用現在的 IG / FB 大頭貼？</summary>
+      <p><strong>Facebook</strong>：到個人檔案，點大頭貼 →「查看大頭貼照」→ 右上角「⋯」→「儲存到手機」（電腦版為「下載」）。</p>
+      <p><strong>Instagram</strong>：無法直接儲存大頭貼，畫面上的圖片解析度也很低。建議從手機相簿找原圖；或到「帳號管理中心」→「你的資訊和權限」→「匯出你的資訊」申請，檔案裡會有原始大頭貼。</p>
+    </details>
   </div>
 
   <div class="step">
@@ -41,6 +46,12 @@
   h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; font-weight: 600; }
   .step + .step { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
   .hint { font-size: 13px; color: var(--muted); text-align: center; margin: 8px 0 12px; }
+
+  .tip { margin-top: 10px; font-size: 13px; color: var(--muted); }
+  .tip summary { cursor: pointer; width: fit-content; }
+  .tip summary:hover { color: var(--accent); }
+  .tip p { margin: 8px 0 0; line-height: 1.6; }
+  .tip strong { color: var(--text); font-weight: 600; }
 
   .slider { display: grid; grid-template-columns: 44px 1fr; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
   .slider input { width: 100%; min-height: 32px; accent-color: var(--accent); }
