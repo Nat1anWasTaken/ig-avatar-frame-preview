@@ -2,7 +2,7 @@
   import AvatarCanvas from './AvatarCanvas.svelte';
   import FilePicker from './FilePicker.svelte';
   import FramePresets from './FramePresets.svelte';
-  import { editor, setPhoto, setFrameFile, setZoom, download } from '../lib/editor.svelte.js';
+  import { editor, setPhoto, setZoom, download } from '../lib/editor.svelte.js';
 
   // compact: the side-by-side layout used in the bottom sheet
   let { compact = false } = $props();
@@ -27,10 +27,6 @@
 
   <div class="step">
     <h2>2 · 頭像框</h2>
-    <FilePicker
-      accept="image/png,image/webp,image/svg+xml,image/*" title="選擇頭像框"
-      hint={editor.frameName} thumb={editor.frameThumb} onfile={setFrameFile}
-    />
     <FramePresets />
   </div>
 
