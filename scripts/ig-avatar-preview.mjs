@@ -3,7 +3,7 @@
 // Nothing is uploaded; every change lives only in a throwaway tab that is closed afterwards.
 //
 // Usage:
-//   node ig-avatar-preview.mjs --avatar framed.jpg [--frame frame.png] [--out dir]
+//   pnpm screenshots --avatar framed.jpg [--frame frame.png] [--out dir]
 //        [--username your.username] [--name "Your Name"] [--note "SITCON 2027 見！"]
 //        [--message "Sent an attachment"] [--caption "..."] [--post post.jpg] [--port 9222]
 //
@@ -31,7 +31,7 @@ const { values: args } = parseArgs({
   },
 });
 if (!args.avatar) {
-  console.error('usage: node ig-avatar-preview.mjs --avatar <image> [--frame <png>] [--out <dir>]');
+  console.error('usage: pnpm screenshots --avatar <image> [--frame <png>] [--out <dir>]');
   process.exit(1);
 }
 

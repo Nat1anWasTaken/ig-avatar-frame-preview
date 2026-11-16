@@ -6,7 +6,9 @@
 // CSS is pruned to rules that still match, and images are pointed at shared assets.
 // Avatar slots are tagged data-slot="avatar" so the previewer can swap them.
 //
-// Usage: node dump-scenes.mjs [--out docs] [--port 9222]
+// Usage: pnpm scenes [--port 9222]
+//
+// Writes public/scenes/*.html, public/assets/ and src/scenes.json.
 
 import crypto from 'node:crypto';
 import fs from 'node:fs';
@@ -16,7 +18,6 @@ import { CDP, browserWsUrl, openTab, prepareScene, SCENES } from './lib.mjs';
 
 const { values: args } = parseArgs({
   options: {
-    out: { type: 'string', default: 'docs' },
     port: { type: 'string', default: '9222' },
   },
 });
@@ -141,9 +142,9 @@ ${root.querySelector('body').outerHTML}
 `;
 }
 
-const out = path.resolve(args.out);
-const sceneDir = path.join(out, 'scenes');
-const assetDir = path.join(out, 'assets');
+const root = path.resolve(import.meta.dirname, '..');
+const sceneDir = path.join(root, 'public/scenes');
+const assetDir = path.join(root, 'public/assets');
 // rings are content-hashed, so clear old ones instead of letting them pile up
 fs.rmSync(path.join(assetDir, 'rings'), { recursive: true, force: true });
 fs.mkdirSync(sceneDir, { recursive: true });
@@ -209,8 +210,8 @@ try {
 } finally {
   cdp.close();
 }
-fs.writeFileSync(path.join(out, 'scenes.json'), JSON.stringify(manifest, null, 2) + '\n');
+fs.writeFileSync(path.join(root, 'src/scenes.json'), JSON.stringify(manifest, null, 2) + '\n');
 // the report quotes live page text, so it stays outside the published directory
-fs.mkdirSync('out', { recursive: true });
-fs.writeFileSync('out/leak-report.txt', report.join('\n\n') + '\n');
+fs.mkdirSync(path.join(root, 'out'), { recursive: true });
+fs.writeFileSync(path.join(root, 'out/leak-report.txt'), report.join('\n\n') + '\n');
 console.log('leak report: out/leak-report.txt');
