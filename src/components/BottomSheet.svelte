@@ -33,7 +33,7 @@
             </button>
           {/if}
           <button class="toggle" type="button" aria-expanded={open} onclick={() => { snap = open ? PEEK : FULL; }}>
-            {open ? '完成' : '調整'}
+            {open ? '預覽' : '調整'}
           </button>
         </div>
       </div>
