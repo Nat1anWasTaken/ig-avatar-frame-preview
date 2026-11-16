@@ -6,12 +6,14 @@
   let { children } = $props();
 
   // Snap points: the peek bar (plus the home-indicator inset) and the open sheet,
-  // which is 72dvh tall so it fits exactly when fully raised.
+  // whose top stops TOP px below the viewport so it overlaps the lower part of
+  // the device tabs (which end ~173px down) without hiding them.
   const probe = Object.assign(document.createElement('div'), { style: 'height: env(safe-area-inset-bottom, 0px)' });
   document.body.append(probe);
   const PEEK = `${76 + probe.offsetHeight}px`;
   probe.remove();
-  const FULL = 0.72;
+  const TOP = 152;
+  const FULL = `${innerHeight - TOP}px`;
 
   // Vaul only applies a snap point when it changes after the drawer node exists,
   // so start at the peek bar and raise the sheet once it has mounted.
@@ -52,7 +54,7 @@
   /* Drawer.Content is portalled to <body>, outside this component's scope.
      Vaul offsets snap points from the top of the viewport, so anchor there. */
   :global(.sheet) {
-    position: fixed; left: 0; right: 0; top: 0; z-index: 10; height: 72dvh;
+    position: fixed; left: 0; right: 0; top: 0; z-index: 10; height: calc(100dvh - 152px);
     display: flex; flex-direction: column; outline: none;
     background: var(--surface); border-top: 1px solid var(--border); border-radius: 20px 20px 0 0;
     box-shadow: 0 -8px 32px rgba(0,0,0,.16);
