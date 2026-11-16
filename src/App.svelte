@@ -13,7 +13,6 @@
   $effect(() => { history.replaceState(null, '', `#${platform}`); });
 
   let device = $state(media.mobile ? 'mobile' : 'desktop');
-  const description = $derived(PLATFORMS.find((p) => p.key === platform).descriptions[device]);
 </script>
 
 <div class="wrap" class:with-sheet={media.mobile}>
@@ -30,7 +29,6 @@
       <div class="toolbar">
         <Tabs options={PLATFORMS} label="平台" bind:value={platform} />
         <Tabs options={DEVICES} label="裝置" bind:value={device} />
-        <p>{description}</p>
       </div>
       <!-- only the selected platform's and device's scenes are mounted -->
       {#key platform + device}
@@ -56,7 +54,6 @@
   }
 
   .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 18px; }
-  .toolbar p { margin: 0; color: var(--muted); font-size: 14px; }
 
 
   @media (max-width: 900px) {

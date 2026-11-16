@@ -19,14 +19,8 @@ const LABELS = {
 export const label = (platform, key) => LABELS[`${platform}:${key}`] || LABELS[key] || key;
 
 export const PLATFORMS = [
-  { key: 'instagram', label: 'Instagram', descriptions: {
-    mobile: '手機瀏覽器上的首頁與私訊',
-    desktop: 'instagram.com 首頁與私訊',
-  } },
-  { key: 'facebook', label: 'Facebook', descriptions: {
-    mobile: '手機瀏覽器上的首頁、個人檔案與通知',
-    desktop: 'facebook.com 首頁、個人檔案與通知。通知列是照 Facebook 的版面填入的示意內容。',
-  } },
+  { key: 'instagram', label: 'Instagram' },
+  { key: 'facebook', label: 'Facebook' },
 ];
 
 export const DEVICES = [
