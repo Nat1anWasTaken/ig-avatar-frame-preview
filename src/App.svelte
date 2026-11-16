@@ -38,10 +38,6 @@
       {/key}
     </main>
   </div>
-
-  <footer>
-    畫面是去識別化的 Instagram 與 Facebook 網頁靜態快照，所有名稱、照片與內容都是佔位資料。Instagram 與 Facebook 是 Meta 的商標，本工具與 Meta 無關。
-  </footer>
 </div>
 
 {#if media.mobile}
@@ -62,7 +58,6 @@
   .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 18px; }
   .toolbar p { margin: 0; color: var(--muted); font-size: 14px; }
 
-  footer { margin-top: 48px; color: var(--muted); font-size: 13px; }
 
   @media (max-width: 900px) {
     .layout { grid-template-columns: minmax(0, 1fr); margin-top: 20px; }
