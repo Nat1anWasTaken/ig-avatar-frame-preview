@@ -14,7 +14,7 @@
     <div class="adjust">
       <p class="hint">拖曳圓圈可移動照片位置{compact ? '，雙指可縮放' : ''}</p>
       <label class="slider">縮放
-        <input type="range" min="1" max="3" step="0.01" value={editor.zoom} oninput={(e) => setZoom(+e.currentTarget.value)}>
+        <input type="range" data-vaul-no-drag min="1" max="3" step="0.01" value={editor.zoom} oninput={(e) => setZoom(+e.currentTarget.value)}>
       </label>
       {#if compact}<button class="btn secondary" type="button" onclick={reset}>重設位置</button>{/if}
     </div>

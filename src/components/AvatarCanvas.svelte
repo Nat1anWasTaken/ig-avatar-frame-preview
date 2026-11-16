@@ -43,7 +43,7 @@
 
 <div class="composite">
   <canvas
-    bind:this={canvas} width={SIZE} height={SIZE} style:--size="{size}px"
+    bind:this={canvas} data-vaul-no-drag width={SIZE} height={SIZE} style:--size="{size}px"
     aria-label="合成後的大頭貼，可拖曳調整位置"
     onpointerdown={down} onpointermove={move} onpointerup={up} onpointercancel={up}
   ></canvas>
