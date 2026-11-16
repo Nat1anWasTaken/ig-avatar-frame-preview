@@ -1,0 +1,19 @@
+{
+  "name": "avatar-frame",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.21.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "scenes": "node scripts/dump-scenes.mjs",
+    "screenshots": "node scripts/ig-avatar-preview.mjs"
+  },
+  "devDependencies": {
+    "vite": "^8.3.8"
+  }
+}
