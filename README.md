@@ -2,7 +2,7 @@
 
 See how an avatar frame looks across Instagram before you ask people to use it.
 
-**Live page:** https://nat1anwastaken.github.io/ig-avatar-frame-preview/
+**Live page:** https://sitcon.org/avatar-frame/
 
 Upload a photo, pick a frame (a PNG with a transparent centre), and the page shows the result in every spot an avatar appears:
 
