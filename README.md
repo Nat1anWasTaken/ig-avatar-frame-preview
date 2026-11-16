@@ -16,9 +16,27 @@ Upload a photo, pick a frame (a PNG with a transparent centre), and the page sho
 
 Everything runs in the browser. Nothing is uploaded.
 
+## Development
+
+Requires Node 22+ and pnpm.
+
+```sh
+pnpm install
+pnpm dev       # local dev server
+pnpm build     # static site in dist/, deployed to GitHub Pages on every push to main
+```
+
+| Path | What it is |
+|---|---|
+| `index.html`, `src/` | the previewer page |
+| `src/scenes.json` | scene sizes and close-up crop rectangles |
+| `public/scenes/`, `public/assets/` | redacted Instagram snapshots and the images they use, served as-is |
+| `frames/` | frame artwork |
+| `scripts/` | Node tools that talk to a real browser (below); not part of the site |
+
 ## How the scenes are made
 
-`docs/scenes/*.html` are static snapshots of instagram.com, taken from a logged-in browser over the Chrome DevTools Protocol and then redacted:
+`public/scenes/*.html` are static snapshots of instagram.com, taken from a logged-in browser over the Chrome DevTools Protocol and then redacted:
 
 - every username, name, note, message and caption is replaced with a placeholder
 - every photo is replaced with a placeholder image
@@ -27,16 +45,16 @@ Everything runs in the browser. Nothing is uploaded.
 
 Avatar slots carry `data-slot="avatar"`, and the previewer swaps them for the uploaded image.
 
-## Tools
+## Scripts
 
-Requires Node 22+ and a Chromium browser with remote debugging on port 9222, logged in to Instagram.
+These need a Chromium browser with remote debugging on port 9222, logged in to Instagram.
 
 ```sh
-# regenerate the snapshots in docs/
-node dump-scenes.mjs
+# regenerate public/scenes/, public/assets/ and src/scenes.json
+pnpm scenes
 
 # or take PNG screenshots of the live site with a given avatar
-node ig-avatar-preview.mjs --avatar photo.jpg --frame frames/sitcon-2027-frame.png --out out
+pnpm screenshots --avatar photo.jpg --frame frames/sitcon-2027-frame.png --out out
 ```
 
 Both scripts open their own background tab and close it when done. Your account is never changed.
