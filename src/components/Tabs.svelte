@@ -15,4 +15,10 @@
     font-weight: 600; font-size: 14px; color: var(--muted); cursor: pointer;
   }
   button[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: 0 0 0 1px var(--border); }
+
+  /* On phones each tab group spans the full width, its tabs sharing it equally. */
+  @media (max-width: 900px) {
+    .tabs { display: flex; width: 100%; }
+    button { flex: 1; }
+  }
 </style>
