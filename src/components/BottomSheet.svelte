@@ -12,7 +12,7 @@
   probe.remove();
   const FULL = 0.72;
 
-  let snap = $state(PEEK);
+  let snap = $state(FULL);
   const open = $derived(snap === FULL);
 </script>
 
