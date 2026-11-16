@@ -14,5 +14,5 @@
     min-height: 40px; padding: 0 18px; border: 0; border-radius: 9px; background: transparent;
     font-weight: 600; font-size: 14px; color: var(--muted); cursor: pointer;
   }
-  button[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+  button[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: 0 0 0 1px var(--border); }
 </style>
