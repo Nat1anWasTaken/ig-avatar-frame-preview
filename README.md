@@ -28,7 +28,10 @@ pnpm build     # static site in dist/, deployed to GitHub Pages on every push to
 
 | Path | What it is |
 |---|---|
-| `index.html`, `src/` | the previewer page |
+| `index.html`, `src/main.js` | page shell and entry point |
+| `src/App.svelte`, `src/components/` | the previewer UI as Svelte components (the editor sits in a sidebar on desktop and a bottom sheet on phones) |
+| `src/lib/` | shared state: avatar compositing and export (`editor.svelte.js`), frame presets and labels (`assets.js`) |
+| `src/styles/` | colour tokens and global styles; component styles live in each `.svelte` file |
 | `src/scenes.json` | scene sizes and close-up crop rectangles |
 | `public/scenes/`, `public/assets/` | redacted Instagram snapshots and the images they use, served as-is |
 | `frames/` | frame artwork |
