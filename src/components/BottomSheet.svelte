@@ -1,4 +1,5 @@
 <script>
+  import { onMount } from 'svelte';
   import { Drawer } from 'vaul-svelte';
   import { editor, download } from '../lib/editor.svelte.js';
 
@@ -12,8 +13,11 @@
   probe.remove();
   const FULL = 0.72;
 
-  let snap = $state(FULL);
+  // Vaul only applies a snap point when it changes after the drawer node exists,
+  // so start at the peek bar and raise the sheet once it has mounted.
+  let snap = $state(PEEK);
   const open = $derived(snap === FULL);
+  onMount(() => requestAnimationFrame(() => { snap = FULL; }));
 </script>
 
 <Drawer.Root open modal={false} dismissible={false} snapPoints={[PEEK, FULL]} bind:activeSnapPoint={snap}>
