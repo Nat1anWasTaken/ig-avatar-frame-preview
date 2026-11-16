@@ -2,78 +2,12 @@
 <html lang="zh-Hant-TW">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Avatar Frame Preview</title>
 <meta name="description" content="上傳大頭貼與頭像框，立即預覽在 Instagram 各處的樣子。所有處理都在你的瀏覽器內完成。">
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>頭像框預覽</h1>
-    <p>上傳你的大頭貼，再選一個頭像框，就能看到它在 Instagram 限時動態、摯友、貼文、私訊和便利貼裡的樣子。圖片只在你的瀏覽器裡處理，不會上傳。</p>
-  </header>
-
-  <div class="layout">
-    <aside class="panel" aria-label="設定">
-      <div class="step">
-        <div class="composite">
-          <canvas id="preview" width="1080" height="1080" aria-label="合成後的大頭貼，可拖曳調整位置"></canvas>
-        </div>
-        <p class="hint">拖曳圓圈可移動照片位置</p>
-      </div>
-
-      <div class="step">
-        <h2>1 · 大頭貼</h2>
-        <label class="drop" id="photoDrop">
-          <input type="file" id="photoInput" accept="image/*">
-          <span class="thumb" id="photoThumb"></span>
-          <span class="label"><strong>選擇照片</strong><span id="photoName">點擊或拖曳圖片到這裡</span></span>
-        </label>
-        <div style="margin-top:12px">
-          <label class="slider">縮放 <input type="range" id="zoom" min="1" max="3" step="0.01" value="1"></label>
-        </div>
-      </div>
-
-      <div class="step">
-        <h2>2 · 頭像框</h2>
-        <label class="drop" id="frameDrop">
-          <input type="file" id="frameInput" accept="image/png,image/webp,image/svg+xml,image/*">
-          <span class="thumb" id="frameThumb"></span>
-          <span class="label"><strong>選擇頭像框</strong><span id="frameName">中間透明的 PNG</span></span>
-        </label>
-        <div class="chips" role="group" aria-label="頭像框範本">
-          <button class="chip" type="button" data-frame="sitcon-2027" aria-pressed="true">SITCON 2027</button>
-          <button class="chip" type="button" data-frame="" aria-pressed="false">不加框</button>
-        </div>
-      </div>
-
-      <div class="step">
-        <button class="btn" type="button" id="download">下載合成後的大頭貼</button>
-        <button class="btn secondary" type="button" id="reset">重設位置</button>
-      </div>
-    </aside>
-
-    <main>
-      <section class="group" id="desktop">
-        <h2>電腦版</h2>
-        <p>instagram.com 首頁與私訊</p>
-        <div class="closeups" data-device="desktop"></div>
-        <div class="scenes desktop" data-device="desktop"></div>
-      </section>
-      <section class="group" id="mobile">
-        <h2>手機版</h2>
-        <p>手機瀏覽器上的首頁與私訊</p>
-        <div class="closeups" data-device="mobile"></div>
-        <div class="scenes mobile" data-device="mobile"></div>
-      </section>
-    </main>
-  </div>
-
-  <footer>
-    畫面是去識別化的 Instagram 網頁靜態快照，所有名稱、照片與內容都是佔位資料。Instagram 是 Meta 的商標，本工具與 Meta 無關。
-  </footer>
-</div>
-
+<div id="app"></div>
 <script type="module" src="/src/main.js"></script>
 </body>
 </html>
