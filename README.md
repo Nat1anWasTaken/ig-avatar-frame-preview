@@ -37,9 +37,6 @@ node dump-scenes.mjs
 
 # or take PNG screenshots of the live site with a given avatar
 node ig-avatar-preview.mjs --avatar photo.jpg --frame frames/sitcon-2027-frame.png --out out
-
-# turn a frame exported as JPEG (white centre) into a PNG with a transparent centre
-uv run --with pillow python make_frame_png.py frame.jpg frame.png
 ```
 
 Both scripts open their own background tab and close it when done. Your account is never changed.
