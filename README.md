@@ -1,4 +1,4 @@
-# SITCON 2027 社群 Campaign
+# 換上 SITCON 2027
 
 The kit for SITCON 2027's social media campaign: an avatar frame, a Facebook cover and a LINE profile background, with a preview of how each looks on Instagram, Facebook and LINE.
 

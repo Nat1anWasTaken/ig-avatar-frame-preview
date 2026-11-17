@@ -21,7 +21,7 @@
 
 <div class="wrap" class:with-sheet={media.mobile}>
   <header>
-    <h1>SITCON 2027 社群 Campaign</h1>
+    <h1>換上 SITCON 2027</h1>
   </header>
 
   <div class="layout">
