@@ -8,7 +8,7 @@ const ctx = canvas.getContext('2d');
 export const source = canvas;
 
 export const editor = $state({
-  photo: null, photoName: '點擊或拖曳圖片到這裡', photoThumb: '',
+  photo: null, photoThumb: '',
   frame: null, frameName: '中間透明的 PNG', frameThumb: '', preset: null,
   zoom: 1, dx: 0, dy: 0,
   avatarUrl: pub('assets/default-avatar.png'),
@@ -54,7 +54,6 @@ export async function setPhoto(file) {
   const url = URL.createObjectURL(file);
   editor.photo = await loadImage(url);
   editor.photoThumb = url;
-  editor.photoName = file.name;
   reset();
 }
 
@@ -74,9 +73,21 @@ export function choosePreset(key) {
   return setFrame(p.src, p.label);
 }
 
-export function download() {
-  const a = document.createElement('a'); a.href = editor.avatarUrl; a.download = 'avatar-with-frame.png'; a.click();
+// Phones that can share files get the share sheet, so the image can go
+// straight to the photo library; everything else downloads it.
+export async function save(url, filename) {
+  if (navigator.canShare && matchMedia('(pointer: coarse)').matches) {
+    const blob = await (await fetch(url)).blob();
+    const file = new File([blob], filename, { type: blob.type });
+    if (navigator.canShare({ files: [file] })) {
+      // a dismissed sheet is the user's choice; anything else falls back to a download
+      try { await navigator.share({ files: [file] }); return; } catch (e) { if (e.name === 'AbortError') return; }
+    }
+  }
+  const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
 }
+
+export const download = () => save(editor.avatarUrl, 'sitcon-2027-avatar.png');
 
 // default: placeholder person inside the SITCON frame
 export async function init() {
