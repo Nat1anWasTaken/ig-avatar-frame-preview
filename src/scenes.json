@@ -184,6 +184,13 @@
     "height": 900,
     "crops": [
       {
+        "name": "cover",
+        "x": 95,
+        "y": 56,
+        "width": 1250,
+        "height": 680
+      },
+      {
         "name": "own-nav",
         "x": 1370,
         "y": 0,
@@ -263,6 +270,13 @@
     "height": 844,
     "crops": [
       {
+        "name": "cover",
+        "x": 0,
+        "y": 47,
+        "width": 390,
+        "height": 330
+      },
+      {
         "name": "profile-picture",
         "x": 99,
         "y": 179,
@@ -285,6 +299,23 @@
         "y": 124,
         "width": 390,
         "height": 91
+      }
+    ]
+  },
+  {
+    "platform": "line",
+    "id": "mobile-profile",
+    "device": "mobile",
+    "scene": "profile",
+    "width": 390,
+    "height": 844,
+    "crops": [
+      {
+        "name": "profile-picture",
+        "x": 95,
+        "y": 437,
+        "width": 200,
+        "height": 200
       }
     ]
   }

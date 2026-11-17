@@ -1,0 +1,101 @@
+<!doctype html>
+<!-- LINE has no web version: this is the iOS app's own profile page, rebuilt by hand from a screenshot. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>mobile-profile</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 390px; height: 844px; overflow: hidden; background: #000; }
+  body { position: relative; color: #fff; font: 16px/1.25 -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang TC", sans-serif; }
+  svg { display: block; }
+
+  .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  /* the app darkens the photo slightly so the white UI stays readable */
+  .shade { position: absolute; inset: 0; background: linear-gradient(rgba(0,0,0,.18), rgba(0,0,0,0) 22%, rgba(0,0,0,0) 50%, rgba(0,0,0,.32)); }
+
+  .status { position: absolute; top: 0; left: 0; right: 0; height: 54px; }
+  .time { position: absolute; left: 38px; top: 19px; font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
+  .island { position: absolute; left: 104px; top: 13px; width: 174px; height: 36px; border-radius: 18px; background: #000; }
+  .sys { position: absolute; right: 30px; top: 22px; display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; }
+  .battery { width: 25px; height: 12px; border-radius: 4px; background: rgba(255,255,255,.9); color: #000; font-size: 9px; font-weight: 700; display: grid; place-items: center; }
+
+  .top { position: absolute; top: 69px; left: 0; right: 0; height: 32px; }
+  .top > * { position: absolute; top: 0; }
+  .close { left: 12px; }
+  .music { left: 49px; top: 3px; display: flex; align-items: center; gap: 6px; font-size: 13px; opacity: .95; }
+  .music i { width: 25px; height: 25px; border-radius: 50%; background: linear-gradient(135deg, #d9d9e3, #9a9aab); box-shadow: 0 0 0 1px rgba(255,255,255,.6); }
+  .top .a { left: 262px; } .top .b { left: 304px; } .top .c { left: 346px; }
+
+  .me { position: absolute; top: 447px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .avatar { width: 104px; height: 104px; border-radius: 50%; object-fit: cover; background: #ccc; }
+  .name { margin-top: 13px; font-size: 24px; font-weight: 700; letter-spacing: .01em; }
+  .birthday { margin-top: 6px; display: flex; align-items: center; gap: 4px; font-size: 13px; opacity: .92; }
+  .message { margin-top: 5px; font-size: 15px; color: rgba(255,255,255,.65); }
+
+  .actions { position: absolute; top: 669px; left: 0; right: 0; display: grid; grid-template-columns: 52px repeat(3, 1fr) 52px; }
+  .action { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 12.5px; }
+  .action:first-child { grid-column: 2; }
+  .action svg { height: 30px; }
+  .badge { position: relative; }
+  .badge::after { content: "N"; position: absolute; right: -4px; top: -10px; width: 15px; height: 15px; border-radius: 50%; background: #06c755; font-size: 9px; font-weight: 700; display: grid; place-items: center; }
+
+  .rule { position: absolute; top: 760px; left: 0; right: 0; height: 1px; background: rgba(255,255,255,.28); }
+  .premium { position: absolute; top: 776px; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 16px; font-weight: 700; }
+</style>
+</head>
+<body>
+<img class="bg" data-slot="background" alt="">
+<div class="shade"></div>
+
+<div class="status">
+  <span class="time">12:27</span>
+  <span class="island"></span>
+  <span class="sys">
+    <svg width="18" height="12" viewBox="0 0 18 12" fill="#fff"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1" opacity=".4"/><rect x="15" y="0" width="3" height="12" rx="1" opacity=".4"/></svg>
+    4G
+    <span class="battery">55</span>
+  </span>
+</div>
+
+<div class="top">
+  <svg class="close" width="20" height="32" viewBox="0 0 20 32"><path d="M3 9l14 14M17 9 3 23" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+  <span class="music"><i></i>Song title - Artist
+    <svg width="11" height="10" viewBox="0 0 11 10" fill="rgba(255,255,255,.7)"><rect x="0" y="4" width="1.6" height="6"/><rect x="3" y="1" width="1.6" height="9"/><rect x="6" y="3" width="1.6" height="7"/><rect x="9" y="5" width="1.6" height="5"/></svg>
+  </span>
+  <svg class="a" width="28" height="32" viewBox="0 0 28 32" fill="none" stroke="#fff" stroke-width="1.8"><path d="M5 8h8l2 3h8v15H5z" stroke-linejoin="round"/><path d="M9 22l4-5 3 3 2-2 3 4" stroke-linejoin="round"/><circle cx="24" cy="5" r="2.5" fill="#06c755" stroke="none"/></svg>
+  <svg class="b" width="28" height="32" viewBox="0 0 28 32" fill="#fff"><path d="M4 6h8v8H4zm2 2v4h4V8zM16 6h8v8h-8zm2 2v4h4V8zM4 18h8v8H4zm2 2v4h4v-4zM15 17h3v3h-3zm4 0h5v2h-3v3h-2zm-4 5h3v4h-3zm5 2h4v2h-4z"/></svg>
+  <svg class="c" width="28" height="32" viewBox="0 0 28 32" fill="none" stroke="#fff" stroke-width="1.9"><circle cx="14" cy="16" r="3.6"/><path d="M14 6.5l2 .3.7 2.2 1.7 1 2.2-.7 1.4 1.5-.7 2.2.7 1.8 2.2.8v2.4l-2.2.8-.7 1.8.7 2.2-1.4 1.5-2.2-.7-1.7 1-.7 2.2-2 .3-2-.3-.7-2.2-1.7-1-2.2.7-1.4-1.5.7-2.2-.7-1.8-2.2-.8v-2.4l2.2-.8.7-1.8-.7-2.2 1.4-1.5 2.2.7 1.7-1 .7-2.2z" stroke-linejoin="round"/></svg>
+</div>
+
+<div class="me">
+  <img class="avatar" data-slot="avatar" src="../../assets/default-avatar.png" alt="">
+  <div class="name">Your Name</div>
+  <div class="birthday">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="#fff"><path d="M6 0c.8 1 .8 1.8 0 2.3C5.2 1.8 5.2 1 6 0zM5.4 3h1.2v2H5.4zM1.5 5.5h9v2.2c-.8.6-1.5.6-2.2 0-.8.6-1.5.6-2.3 0-.8.6-1.5.6-2.3 0-.7.6-1.4.6-2.2 0zM1 9h10v3H1z"/></svg>
+    Jan 1, 2008
+  </div>
+  <div class="message">Enter a status message</div>
+</div>
+
+<div class="actions">
+  <div class="action">
+    <svg width="36" height="30" viewBox="0 0 36 30" fill="#fff"><circle cx="12" cy="7" r="6"/><path d="M0 26c0-7 5-11 12-11 3 0 5.5.7 7.5 2A8 8 0 0 0 16 26z"/><path d="M22 19a6 6 0 0 1 10.5-2.5M34 25a6 6 0 0 1-10.5 2.5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><path d="M33.5 13v4h-4M22.5 31v-4h4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Subprofile
+  </div>
+  <div class="action">
+    <span class="badge"><svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5l5 5-11 11H8v-5z"/><path d="M5 26h7"/><path d="M24 19l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z" fill="#fff" stroke="none"/></svg></span>
+    Decorate
+  </div>
+  <div class="action">
+    <svg width="24" height="30" viewBox="0 0 24 30" fill="#fff"><path d="M2 2h20v26l-10-7-10 7z"/></svg>
+    Keep Memo
+  </div>
+</div>
+
+<div class="rule"></div>
+<div class="premium">Premium benefits
+  <svg width="9" height="15" viewBox="0 0 9 15"><path d="M1.5 1.5l6 6-6 6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</div>
+</body>
+</html>

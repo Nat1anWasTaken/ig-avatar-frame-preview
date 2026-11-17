@@ -1,6 +1,6 @@
 <script>
   import { editor } from '../lib/editor.svelte.js';
-  import { pub, label } from '../lib/assets.js';
+  import { pub, label, PLATFORMS } from '../lib/assets.js';
 
   // Renders a scene at its native viewport, scaled to fit. With a crop, only
   // that rectangle is shown, magnified up to crop.zoom within maxWidth.
@@ -14,12 +14,15 @@
     ? Math.min(Math.min(maxWidth, innerWidth - 64) / r.width, crop.zoom)
     : width / r.width);
 
+  const banner = PLATFORMS.find((p) => p.key === scene.platform)?.banner;
+
   function apply() {
     const doc = iframe?.contentDocument;
     if (!doc) return;
     doc.querySelectorAll('img[data-slot="avatar"]').forEach((img) => { img.src = editor.avatarUrl; });
     // Facebook draws avatars as an <image> inside a masked <svg>
     doc.querySelectorAll('image[data-slot="avatar"]').forEach((img) => { img.setAttribute('href', editor.avatarUrl); });
+    if (banner) doc.querySelectorAll(`img[data-slot="${banner.slot}"]`).forEach((img) => { img.src = banner.src; });
   }
   $effect(() => { editor.avatarUrl; apply(); });
 </script>
