@@ -2,7 +2,7 @@
 
 A browser-only kit for supporting SITCON through personal social media profiles. Choose an avatar frame, a Facebook profile cover or a LINE profile background independently.
 
-- **Avatar:** choose a photo, adjust its position and zoom, then save a 1080 × 1080 PNG. The official frame is preselected; custom frames and no frame are secondary options. The example avatar cannot be downloaded as a personal result.
+- **Avatar:** choose a photo directly from the overview, adjust its position and zoom, then save a 1080 × 1080 PNG. Returning to the overview offers continuing the existing edit. The official frame is preselected; custom frames and no frame are secondary options. The example avatar cannot be downloaded as a personal result.
 - **Cover and background:** save the released artwork directly, without choosing a photo. Optional previews show the profile context and possible cropping.
 - **Preview:** compare avatar sizes and optionally inspect redacted Instagram, Facebook and LINE scenes. These are static illustrations, not a guarantee of current platform layouts.
 
@@ -84,7 +84,7 @@ These are properties of the included simulations, not verified platform specific
 
 `pnpm test` checks asynchronous image state, output consistency, explicit campaign selection, legacy hashes, built entry paths and sharing metadata. Image and sharing APIs are controlled in these tests; they do not replace browser checks.
 
-For UI changes, check desktop and narrow layouts, keyboard and touch controls, all three independent tasks, invalid and cancelled photo replacements, task switching and the saved image against the preview. For annual-entry changes, open both built paths directly, reload asset links and check browser history. Before publishing, verify saving and cancellation on real phones and in-app browsers, actual personal-profile cropping and social link cards. Confirm first-time users understand the purpose and next action; a working download does not establish adoption.
+For UI changes, check desktop and 320/390 px layouts, keyboard and touch controls, all three independent tasks, invalid and cancelled photo replacements, task switching and the saved image against the preview. Check that the overview opens the photo picker directly, cancellation stays in place, and continuing an edit preserves the crop. For annual-entry changes, open both built paths directly, reload asset links and check browser history. Before publishing, verify saving and cancellation on real phones and in-app browsers, actual personal-profile cropping and social link cards. Confirm first-time users understand the purpose and next action; a working download does not establish adoption.
 
 Pushing `main` or manually triggering `.github/workflows/deploy.yml` runs `pnpm test` before publishing the `dist/` output to GitHub Pages. A failed build or test prevents deployment. Official website links, short links and social media posts are managed separately; verify their destination and year when coordinating a release.
 

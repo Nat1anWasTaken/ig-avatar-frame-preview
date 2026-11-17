@@ -2,9 +2,10 @@
   import AvatarCanvas from './AvatarCanvas.svelte';
   import FilePicker from './FilePicker.svelte';
   import FramePresets from './FramePresets.svelte';
-  import { editor, setPhoto, setZoom, pan, resetCrop, download } from '../lib/editor.svelte.js';
+  import { editor, setZoom, pan, resetCrop, download } from '../lib/editor.svelte.js';
 
-  let { children } = $props();
+  let { children, onphoto, photoFeedback = true } = $props();
+  const error = $derived(editor.frameError || (photoFeedback ? editor.photoError : '') || editor.renderError);
   let frameRecovery = $state(false);
   // Keep recovery controls mounted after retry so keyboard focus is retained.
   $effect(() => { if (editor.frameError) frameRecovery = true; });
@@ -32,12 +33,12 @@
 
   <FilePicker
     accept="image/*" title={editor.hasPhoto ? '換一張照片' : '選擇照片'}
-    thumb={editor.photoThumb} primary={!editor.hasPhoto} onfile={setPhoto}
+    thumb={editor.photoThumb} primary={!editor.hasPhoto} disabled={editor.saving} onfile={onphoto}
   />
   <p class="privacy">照片只在你的瀏覽器處理</p>
 
-  {#if editor.busy}<p class="status" role="status">正在讀取圖片…</p>{/if}
-  {#if editor.error}<p class="error" role="alert">{editor.error}</p>{/if}
+  {#if editor.busy && photoFeedback}<p class="status" role="status">正在讀取圖片…</p>{/if}
+  {#if error}<p class="error" role="alert">{error}</p>{/if}
 
   {#if editor.hasPhoto}
     <div class="crop-controls">

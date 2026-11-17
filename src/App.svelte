@@ -1,15 +1,18 @@
 <script>
   import { onMount, tick } from 'svelte';
   import Editor from './components/Editor.svelte';
+  import FilePicker from './components/FilePicker.svelte';
   import SocialPreview from './components/SocialPreview.svelte';
   import { CAMPAIGN, ARTWORK, pub } from './lib/assets.js';
-  import { editor, save } from './lib/editor.svelte.js';
+  import { editor, save, setPhoto } from './lib/editor.svelte.js';
   import { artworkFromHash } from './lib/navigation.js';
 
   let selected = $state(artworkFromHash(location.hash) ?? 'avatar');
   let savePlacement = $state('overview');
   let copyStatus = $state('');
   let shareOpen = $state(false);
+  let photoPlacement = $state('workspace');
+  let navigationVersion = 0;
   const current = $derived(ARTWORK.find((item) => item.key === selected));
   const savedArtwork = $derived(ARTWORK.find((item) => item.file === editor.saveTarget));
   const saveMessage = $derived({
@@ -22,6 +25,7 @@
   const shareText = `${CAMPAIGN.invitation}\n${CAMPAIGN.url}`;
 
   async function selectArtwork(key, updateUrl = true) {
+    navigationVersion++;
     selected = key;
     if (updateUrl && location.hash !== `#${key}`) history.pushState(null, '', `#${key}`);
     await tick();
@@ -33,6 +37,16 @@
   function readHash() {
     const key = artworkFromHash(location.hash);
     if (key) selectArtwork(key, false);
+  }
+
+  async function choosePhoto(file, placement) {
+    photoPlacement = placement;
+    const navigation = navigationVersion;
+    const result = await setPhoto(file);
+    if (result === 'ready' && placement === 'overview' && navigation === navigationVersion) {
+      photoPlacement = 'workspace';
+      await selectArtwork('avatar');
+    }
   }
 
   async function saveArtwork(item, placement) {
@@ -99,7 +113,11 @@
               <h2>{item.key === 'avatar' ? '頭貼' : item.key === 'facebook' ? 'Facebook 封面' : 'LINE 主頁背景'}</h2>
               <p>{item.key === 'avatar' ? '放入自己的照片' : item.key === 'facebook' ? '個人檔案封面相片' : '個人主頁背景圖片'}</p>
               {#if item.key === 'avatar'}
-                <button class="btn" type="button" onclick={() => selectArtwork(item.key)}>製作頭貼 <span aria-hidden="true">↗</span></button>
+                {#if editor.hasPhoto}
+                  <button class="btn continue" type="button" onclick={() => selectArtwork(item.key)}>繼續編輯 <span aria-hidden="true">↗</span></button>
+                {:else}
+                  <FilePicker title="選照片製作" primary compact disabled={editor.saving} onfile={(file) => choosePhoto(file, 'overview')} />
+                {/if}
               {:else}
                 <button class="btn secondary" type="button" disabled={editor.saving} aria-label="儲存圖片：{item.title}" onclick={() => saveArtwork(item, 'overview')}>儲存圖片 <span aria-hidden="true">↓</span></button>
               {/if}
@@ -112,6 +130,10 @@
           </article>
         {/each}
       </div>
+      {#if photoPlacement === 'overview'}
+        {#if editor.busy}<p class="entry-status" role="status">正在讀取照片…</p>{/if}
+        {#if editor.photoError}<p class="entry-status" role="alert">{editor.photoError}</p>{/if}
+      {/if}
       {#if savedArtwork?.key !== 'avatar' && savePlacement === 'overview'}{@render feedback()}{/if}
     </section>
 
@@ -123,7 +145,7 @@
       <div class="workspace">
         <div class="work-panel">
           {#if selected === 'avatar'}
-            <Editor>
+            <Editor onphoto={(file) => choosePhoto(file, 'workspace')} photoFeedback={photoPlacement === 'workspace'}>
               {#if savedArtwork?.key === 'avatar'}{@render feedback()}{/if}
             </Editor>
           {:else}
@@ -236,6 +258,7 @@
   .how-to p { margin: 8px 0; }
   .how-to a { display: inline-block; margin-top: 4px; color: var(--accent); }
   .save-feedback { margin: 14px 0 0; font-size: 13px; color: #d7cef6; }
+  .entry-status { margin: 14px 0 0; color: var(--muted); font-size: 13px; }
   .save-feedback:empty { display: none; }
   .invitation { display: grid; grid-template-columns: 1fr 340px; gap: 48px; align-items: start; padding-block: 44px; margin-top: 64px; border-top: 1px solid var(--border); }
   .invitation h2 { margin: 0; font-weight: 500; font-size: 23px; letter-spacing: -.02em; }
@@ -287,7 +310,7 @@
     .artwork-caption { padding: 12px 8px 8px; }
     .artwork-caption h2 { font-size: 12px; min-height: 38px; line-height: 1.5; }
     .artwork-caption p { display: none; }
-    .artwork-caption .btn { font-size: 12px; min-height: 42px; padding: 8px 4px; gap: 3px; white-space: nowrap; }
+    .artwork-caption .btn { font-size: 12px; min-height: 44px; padding: 8px 4px; gap: 3px; white-space: nowrap; }
     .artwork-caption .btn span { display: none; }
     .preview-link { font-size: 10px; min-height: 36px; padding-top: 6px; }
     .card-note { font-size: 9px; padding-top: 8px; line-height: 1.5; }

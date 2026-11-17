@@ -1,5 +1,5 @@
 <script>
-  let { accept = 'image/*', title, thumb, primary = false, onfile } = $props();
+  let { accept = 'image/*', title, thumb, primary = false, compact = false, disabled = false, onfile } = $props();
   const inputId = $props.id();
   let over = $state(false);
 
@@ -12,18 +12,19 @@
   function drop(e) {
     e.preventDefault();
     over = false;
+    if (disabled) return;
     const file = e.dataTransfer.files[0];
     if (file) onfile(file);
   }
 </script>
 
 <label
-  for={inputId} class="drop" class:over class:primary
+  for={inputId} class="drop" class:over class:primary class:compact class:disabled
   ondragover={(e) => { e.preventDefault(); over = true; }}
   ondragleave={() => { over = false; }} ondrop={drop}
 >
-  <input id={inputId} type="file" {accept} onchange={select}>
-  {#if primary}
+  <input id={inputId} type="file" {accept} {disabled} onchange={select}>
+  {#if primary && !compact}
     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
   {:else if thumb}
     <img class="thumb" src={thumb} alt="">
@@ -40,8 +41,12 @@
   .drop:hover, .drop.over { border-color: var(--accent); }
   .drop.primary { border-color: transparent; background: var(--accent); color: var(--accent-text); }
   .drop.primary:hover, .drop.primary.over { filter: brightness(1.08); }
+  .drop.disabled { opacity: .5; cursor: wait; }
   .drop:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 4px; }
   input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .icon { width: 20px; height: 20px; flex: none; }
   .thumb { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex: none; }
+  @media (max-width: 650px) {
+    .drop.compact { min-height: 44px; padding: 8px 4px; border-radius: 9px; font-size: 12px; }
+  }
 </style>
