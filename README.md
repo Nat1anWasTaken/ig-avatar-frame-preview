@@ -2,7 +2,7 @@
 
 The kit for SITCON 2027's social media campaign: an avatar frame, a Facebook cover and a LINE profile background, with a preview of how each looks on Instagram, Facebook and LINE.
 
-**Live page:** https://sitcon.org/avatar-frame/
+**Live page:** https://sitcon.org/social-kit/
 
 Upload a photo and pick a frame (a PNG with a transparent centre). The page puts the framed avatar, together with each platform's banner, in every spot they appear, ready to download.
 
