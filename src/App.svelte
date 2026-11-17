@@ -11,13 +11,17 @@
   const fromHash = location.hash.slice(1);
   let platform = $state(PLATFORMS.some((p) => p.key === fromHash) ? fromHash : 'instagram');
   $effect(() => { history.replaceState(null, '', `#${platform}`); });
+  const current = $derived(PLATFORMS.find((p) => p.key === platform));
 
-  let device = $state(media.mobile ? 'mobile' : 'desktop');
+  let preferred = $state(media.mobile ? 'mobile' : 'desktop');
+  // LINE only has a phone app, so its device falls back to what it has
+  const devices = $derived(DEVICES.filter((d) => current.devices.includes(d.key)));
+  const device = $derived(current.devices.includes(preferred) ? preferred : current.devices[0]);
 </script>
 
 <div class="wrap" class:with-sheet={media.mobile}>
   <header>
-    <h1>頭像框預覽</h1>
+    <h1>SITCON 2027 社群 Campaign</h1>
   </header>
 
   <div class="layout">
@@ -28,7 +32,9 @@
     <main>
       <div class="toolbar">
         <Tabs options={PLATFORMS} label="平台" bind:value={platform} />
-        <Tabs options={DEVICES} label="裝置" bind:value={device} />
+        {#if devices.length > 1}
+          <Tabs options={devices} label="裝置" bind:value={() => device, (v) => { preferred = v; }} />
+        {/if}
       </div>
       <!-- only the selected platform's and device's scenes are mounted -->
       {#key platform + device}
@@ -50,7 +56,7 @@
   .layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 28px; margin-top: 28px; align-items: start; }
   .panel {
     background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow);
-    padding: 20px; position: sticky; top: 16px;
+    padding: 20px; position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto;
   }
 
   .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 18px; }
