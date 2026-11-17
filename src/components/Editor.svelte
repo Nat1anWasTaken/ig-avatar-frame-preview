@@ -2,74 +2,106 @@
   import AvatarCanvas from './AvatarCanvas.svelte';
   import FilePicker from './FilePicker.svelte';
   import FramePresets from './FramePresets.svelte';
-  import KitItem from './KitItem.svelte';
-  import { editor, setPhoto, setZoom, download, save } from '../lib/editor.svelte.js';
-  import { PLATFORMS } from '../lib/assets.js';
+  import { editor, setPhoto, setZoom, pan, resetCrop, download } from '../lib/editor.svelte.js';
 
-  // compact: the side-by-side layout used in the bottom sheet
-  let { compact = false } = $props();
-  let kit;
+  let { children } = $props();
+  let frameRecovery = $state(false);
+  // Keep recovery controls mounted after retry so keyboard focus is retained.
+  $effect(() => { if (editor.frameError) frameRecovery = true; });
+  const directions = [
+    { label: '向左移動照片', arrow: '←', x: -24, y: 0 },
+    { label: '向上移動照片', arrow: '↑', x: 0, y: -24 },
+    { label: '向下移動照片', arrow: '↓', x: 0, y: 24 },
+    { label: '向右移動照片', arrow: '→', x: 24, y: 0 },
+  ];
 </script>
 
-<div class="editor" class:compact>
-  <div class="step preview">
-    <AvatarCanvas size={compact ? 132 : 200} />
-    <div class="adjust">
-      <label class="slider">縮放
-        <input type="range" data-vaul-no-drag min="1" max="3" step="0.01" value={editor.zoom} oninput={(e) => setZoom(+e.currentTarget.value)}>
-      </label>
-      {#if compact}
-        <button class="btn" type="button" onclick={download}>下載頭像</button>
-        <!-- the banners sit below the fold of the sheet, so point at them -->
-        <button class="jump" type="button" onclick={() => kit.scrollIntoView({ behavior: 'smooth', block: 'start' })}>封面與背景 ↓</button>
+<div class="editor">
+  <h2 id="avatar-editor-title" tabindex="-1">製作頭貼</h2>
+
+  <figure>
+    <AvatarCanvas size={240} editable={editor.hasPhoto && !editor.busy && !editor.saving} />
+    <figcaption>
+      {#if editor.hasPhoto}
+        拖曳或用方向鍵調整位置
+      {:else}
+        <span class="sample-label">套用示意</span>
       {/if}
-    </div>
-  </div>
+    </figcaption>
+  </figure>
 
-  <div class="step">
-    <h2>1 · 選照片</h2>
-    <FilePicker accept="image/*" title={editor.photoThumb ? '換一張照片' : '選擇你的照片'} thumb={editor.photoThumb} primary={!editor.photoThumb} onfile={setPhoto} />
-    <details class="tip">
-      <summary>想用現在的 IG / FB 大頭貼？</summary>
-      <p><strong>Facebook</strong>：到個人檔案，點大頭貼 →「查看大頭貼照」→ 右上角「⋯」→「儲存到手機」（電腦版為「下載」）。</p>
-      <p><strong>Instagram</strong>：無法直接儲存大頭貼，畫面上的圖片解析度也很低。建議從手機相簿找原圖；或到「帳號管理中心」→「你的資訊和權限」→「匯出你的資訊」申請，檔案裡會有原始大頭貼。</p>
+  <FilePicker
+    accept="image/*" title={editor.hasPhoto ? '換一張照片' : '選擇照片'}
+    thumb={editor.photoThumb} primary={!editor.hasPhoto} onfile={setPhoto}
+  />
+  <p class="privacy">照片只在你的瀏覽器處理</p>
+
+  {#if editor.busy}<p class="status" role="status">正在讀取圖片…</p>{/if}
+  {#if editor.error}<p class="error" role="alert">{editor.error}</p>{/if}
+
+  {#if editor.hasPhoto}
+    <div class="crop-controls">
+      <div class="zoom-row">
+        <label class="zoom">縮放
+          <input
+            type="range" min="1" max="3" step="0.01" value={editor.zoom}
+            disabled={editor.busy || editor.saving} oninput={(e) => setZoom(+e.currentTarget.value)}
+          >
+        </label>
+        <button class="reset" type="button" disabled={editor.busy || editor.saving} onclick={resetCrop}>重設</button>
+      </div>
+      <div class="move-controls" role="group" aria-label="移動照片">
+        <span>位置</span>
+        {#each directions as direction}
+          <button
+            class="move" type="button" aria-label={direction.label} title={direction.label}
+            disabled={editor.busy || editor.saving} onclick={() => pan(direction.x, direction.y)}
+          >{direction.arrow}</button>
+        {/each}
+      </div>
+    </div>
+
+    <button class="btn save" type="button" disabled={!editor.canDownload} onclick={download}>
+      {editor.saving ? '儲存中…' : editor.busy || editor.rendering ? '處理圖片中…' : '儲存頭貼'}
+    </button>
+    {#if children}{@render children()}{/if}
+  {/if}
+
+  {#if editor.hasPhoto || frameRecovery}
+    <details class="options" open={frameRecovery}>
+      <summary>其他頭貼框</summary>
+      <div class="frames"><FramePresets /></div>
     </details>
-  </div>
-
-  <div class="step">
-    <h2>2 · 選頭像框</h2>
-    <FramePresets />
-  </div>
-
-  <div class="step" bind:this={kit}>
-    <h2>3 · 下載並換上</h2>
-    <div class="kit">
-      <KitItem thumb={editor.avatarUrl} round title="大頭貼" onsave={download} />
-      {#each PLATFORMS.filter((p) => p.banner) as p (p.key)}
-        <KitItem thumb={p.banner.src} title="{p.label} {p.banner.label}" onsave={() => save(p.banner.src, p.banner.file)} />
-      {/each}
-    </div>
-  </div>
+  {/if}
 </div>
 
 <style>
-  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; font-weight: 600; }
-  .step + .step { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .editor { min-width: 0; }
+  h2 { margin: 0 0 24px; font-size: 22px; line-height: 1.3; letter-spacing: -.02em; }
+  h2:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
+  figure { margin: 0 0 20px; }
+  figcaption { margin-top: 12px; min-height: 24px; color: var(--muted); text-align: center; font-size: 12px; }
+  .sample-label { display: inline-block; padding: 2px 9px; border: 1px solid var(--border); border-radius: 99px; }
+  .privacy { margin: 10px 0 0; text-align: center; color: var(--muted); font-size: 12px; }
+  .status, .error { margin: 14px 0 0; font-size: 13px; }
+  .status { color: var(--muted); }
+  .error { padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; }
 
-  .kit { display: grid; gap: 12px; }
+  .crop-controls { margin-top: 20px; }
+  .zoom-row { display: flex; align-items: center; gap: 14px; }
+  .zoom { display: flex; align-items: center; flex: 1; gap: 12px; min-width: 0; font-size: 13px; color: var(--muted); white-space: nowrap; }
+  .zoom input { width: 100%; min-width: 0; min-height: 44px; accent-color: var(--accent); }
+  .reset, .move { min-height: 44px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); cursor: pointer; }
+  .reset { padding: 0 12px; font-size: 13px; }
+  .move-controls { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .move-controls > span { margin-right: auto; color: var(--muted); font-size: 13px; }
+  .move { min-width: 44px; font-size: 20px; line-height: 1; }
+  .reset:hover, .move:hover { border-color: var(--accent); }
+  .reset:focus-visible, .move:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .save { margin-top: 22px; }
 
-  .tip { margin-top: 10px; font-size: 13px; color: var(--muted); }
-  .tip summary { cursor: pointer; width: fit-content; }
-  .tip summary:hover { color: var(--accent); }
-  .tip p { margin: 8px 0 0; line-height: 1.6; }
-  .tip strong { color: var(--text); font-weight: 600; }
-
-  .slider { display: grid; grid-template-columns: 44px 1fr; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
-  .slider input { width: 100%; min-height: 32px; accent-color: var(--accent); }
-
-  .compact .preview { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: center; }
-  .compact .adjust .btn { margin-top: 10px; min-height: 40px; padding: 8px 12px; font-size: 14px; }
-  .jump { display: block; margin: 6px auto 0; min-height: 32px; padding: 0; border: 0; background: none; font-size: 13px; color: var(--accent); cursor: pointer; }
-  .compact .step + .step { margin-top: 16px; padding-top: 16px; }
-  @media (pointer: coarse) { .slider input { min-height: 40px; } }
+  .options { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
+  summary { width: fit-content; color: var(--muted); font-size: 13px; cursor: pointer; }
+  .frames { margin-top: 14px; }
 </style>

@@ -2,23 +2,23 @@
   let { options, label, value = $bindable() } = $props();
 </script>
 
-<div class="tabs" role="tablist" aria-label={label}>
+<div class="tabs" role="group" aria-label={label}>
   {#each options as d (d.key)}
-    <button type="button" role="tab" aria-selected={value === d.key} onclick={() => { value = d.key; }}>{d.label}</button>
+    <button type="button" aria-pressed={value === d.key} onclick={() => { value = d.key; }}>{d.label}</button>
   {/each}
 </div>
 
 <style>
-  .tabs { display: inline-flex; padding: 4px; gap: 4px; border-radius: 12px; background: var(--surface-2); }
+  .tabs { display: inline-flex; flex-wrap: wrap; max-width: 100%; padding: 4px; gap: 4px; border-radius: 12px; background: var(--surface-2); }
   button {
     min-height: 40px; padding: 0 18px; border: 0; border-radius: 9px; background: transparent;
     font-weight: 600; font-size: 14px; color: var(--muted); cursor: pointer;
   }
-  button[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: 0 0 0 1px var(--border); }
+  button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 0 0 1px var(--border); }
 
   /* On phones each tab group spans the full width, its tabs sharing it equally. */
   @media (max-width: 900px) {
     .tabs { display: flex; width: 100%; }
-    button { flex: 1; }
+    button { flex: 1; padding-inline: 8px; }
   }
 </style>

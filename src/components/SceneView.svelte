@@ -2,19 +2,11 @@
   import { editor } from '../lib/editor.svelte.js';
   import { pub, label, PLATFORMS } from '../lib/assets.js';
 
-  // Renders a scene at its native viewport, scaled to fit. With a crop, only
-  // that rectangle is shown, magnified up to crop.zoom within maxWidth.
-  let { scene, crop = null, maxWidth = 0 } = $props();
+  let { scene } = $props();
   let iframe;
   let width = $state(0);
-  let innerWidth = $state(0);
-
-  const r = $derived(crop ?? { x: 0, y: 0, width: scene.width, height: scene.height });
-  const z = $derived(crop
-    ? Math.min(Math.min(maxWidth, innerWidth - 64) / r.width, crop.zoom)
-    : width / r.width);
-
-  const banner = PLATFORMS.find((p) => p.key === scene.platform)?.banner;
+  const scale = $derived(width / scene.width);
+  const banner = $derived(PLATFORMS.find((p) => p.key === scene.platform)?.banner);
 
   function apply() {
     const doc = iframe?.contentDocument;
@@ -24,24 +16,21 @@
     doc.querySelectorAll('image[data-slot="avatar"]').forEach((img) => { img.setAttribute('href', editor.avatarUrl); });
     if (banner) doc.querySelectorAll(`img[data-slot="${banner.slot}"]`).forEach((img) => { img.src = banner.src; });
   }
-  $effect(() => { editor.avatarUrl; apply(); });
+  $effect(() => { editor.avatarUrl; banner; apply(); });
 </script>
 
-<svelte:window bind:innerWidth />
-
-<div class="fit" class:crop bind:clientWidth={width}>
-  <div class="viewport" style:width="{r.width * z}px" style:height="{r.height * z}px">
+<div bind:clientWidth={width} role="img" aria-label="{scene.platform} {scene.device === 'mobile' ? '手機版' : '電腦版'}{label(scene.platform, scene.scene)}套用示意">
+  <div class="viewport" style:width="{width}px" style:height="{scene.height * scale}px">
     <iframe
       bind:this={iframe} src={pub(`scenes/${scene.platform}/${scene.id}.html`)}
       title="{scene.platform} {scene.device} {label(scene.platform, scene.scene)}"
-      tabindex="-1" loading="lazy" width={scene.width} height={scene.height} onload={apply}
-      style:transform="scale({z}) translate({-r.x}px, {-r.y}px)"
+      inert aria-hidden="true" tabindex="-1" loading="lazy" width={scene.width} height={scene.height} onload={apply}
+      style:transform="scale({scale})"
     ></iframe>
   </div>
 </div>
 
 <style>
-  .fit.crop { display: grid; place-items: center; }
   .viewport { position: relative; overflow: hidden; border-radius: 8px; background: #0c1014; }
   iframe {
     position: absolute; left: 0; top: 0; border: 0; transform-origin: 0 0; pointer-events: none; background: #0c1014;
