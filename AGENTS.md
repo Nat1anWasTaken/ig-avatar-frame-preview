@@ -20,13 +20,14 @@ This repository helps SITCON supporters create, preview and save artwork for the
 - Keep photo processing in the browser. Do not send user images or identifying image data to servers, analytics or logs, or add persistent photo storage without a task requirement. Use synthetic or supplied sample images for testing.
 - Composition and saving belong in `src/lib/editor.svelte.js`. Preserve valid work across failed or cancelled replacements and in-page task switches; the latest selection and confirmed preview must determine the saved output.
 - A sample is not a personal result. Do not enable avatar saving before a valid photo and frame choice are ready. Download and system-share results must not claim the user changed their social profile.
-- `frames/` and `banners/` contain released artwork. Do not redraw it as part of routine UI work. Investigate cropping against actual personal-profile layouts before proposing asset changes; Facebook Page specifications are not personal-profile specifications.
+- `src/campaigns/<year>/artwork/` contains released artwork. Do not redraw it as part of routine UI work. Investigate cropping against actual personal-profile layouts before proposing asset changes; Facebook Page specifications are not personal-profile specifications.
 - Keep static scenes redacted, inert and free of scripts or tracking. Preserve `data-slot` markers used by `SceneView.svelte`; scene crop coordinates are not platform safe areas.
 
 ## Routes and deployment
 
 - Asset imports and `pub()` in `src/lib/assets.js` must work under `/social-kit/`, including the annual entry. Keep legacy hash mappings in `src/lib/navigation.js` working.
-- Keep campaign artwork, event links, filenames and static sharing metadata consistent. Both HTML entries share the 2027 app; adding a year must preserve the content and metadata of published annual links.
+- Keep annual copy, links, artwork and scoped palettes in `src/campaigns/<year>/`; keep editing and platform behavior shared. Each HTML entry explicitly selects a registered campaign with `data-campaign` and loads its theme. Never fall back to another year for a missing or unknown campaign.
+- Keep campaign artwork, event links, filenames and static sharing metadata consistent. Follow the README's new-year steps; retain published annual entries and sharing URLs when changing the promoted campaign. Changing the general entry must not change older annual pages.
 - Pushing `main` or triggering `.github/workflows/deploy.yml` publishes to GitHub Pages. Check the task's authorization for commits, publication and external entry-point changes separately from local edits.
 
 ## Verification and documentation

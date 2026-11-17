@@ -27,7 +27,19 @@ Use `#avatar`, `#facebook` or `#line` for a particular task. The earlier `#insta
 
 Legacy campaign links such as `https://i.sitcon.org/frame/` carry the 2027 avatar invitation. Preserve that year and purpose when coordinating changes to their destinations.
 
-Both entries serve the 2027 kit. Keep published annual content, filenames, event links and static sharing metadata tied to the year they advertise when adding campaigns.
+Each HTML entry explicitly selects its campaign with `data-campaign`. Both current entries select `2027`; `src/campaigns/index.js` resolves that year and rejects missing or unknown values. The app currently offers only 2027, with no year picker or historical collection. Public campaign links and their previews must continue to deliver the year they advertised.
+
+## Campaigns and future years
+
+Annual copy, links, released artwork and the color palette live together in `src/campaigns/2027/`. The editor, controls and platform scenes remain shared. HTML entries keep their sharing metadata static so link previews do not depend on JavaScript. The public sharing image is an intentional separate copy with a stable URL.
+
+To add a year:
+
+1. Add `src/campaigns/<year>/` with its `index.js`, `artwork/` and `theme.css`, following the existing campaign's three artwork types. Register it in `src/campaigns/index.js`.
+2. Add `<year>/index.html`, explicitly select that year, load its scoped theme and set its static title, description, canonical and Open Graph metadata. Add its sharing image under `public/social/` and its HTML entry to `vite.config.js`; retain all published annual entries.
+3. Extend the campaign and built-entry tests. Check both the new year and 2027 directly, including default frames, download names, event links, scenes and share cards. Change the general `index.html` entry only when the promoted campaign changes; never derive it from the calendar year.
+
+The shared layout still contains component styling. A future visual identity may need targeted layout or style work in addition to its annual palette; the campaign directory is not a promise that every design can be expressed as data.
 
 ## Development
 
@@ -48,9 +60,9 @@ pnpm preview   # serve the production build locally
 | `src/components/Editor.svelte`, `AvatarCanvas.svelte`, `FilePicker.svelte`, `FramePresets.svelte` | Photo selection, crop controls and optional frames |
 | `src/components/SocialPreview.svelte`, `SceneView.svelte`, `Tabs.svelte` | Size comparison and optional platform scenes |
 | `src/lib/editor.svelte.js` | Image composition, asynchronous state, object URLs and saving |
-| `src/lib/assets.js`, `navigation.js` | Campaign data, artwork, shared platform definitions, public paths and legacy hash mapping |
+| `src/campaigns/index.js`, `src/campaigns/<year>/` | Explicit year selection, annual copy, links, released artwork and scoped palette |
+| `src/lib/assets.js`, `navigation.js` | Selected campaign's assets, shared platform definitions, public paths and legacy hash mapping |
 | `src/scenes.json`, `public/scenes/`, `public/assets/` | Scene dimensions, redacted HTML and supporting assets |
-| `frames/`, `banners/` | Released artwork |
 | `public/social/` | Annual sharing image, copied unchanged from the Facebook artwork |
 | `tests/` | Node tests; image I/O is controlled rather than a real browser |
 
@@ -70,7 +82,7 @@ These are properties of the included simulations, not verified platform specific
 
 ## Validation and deployment
 
-`pnpm test` checks asynchronous image state, output consistency, legacy hashes, built entry paths and sharing metadata. Image and sharing APIs are controlled in these tests; they do not replace browser checks.
+`pnpm test` checks asynchronous image state, output consistency, explicit campaign selection, legacy hashes, built entry paths and sharing metadata. Image and sharing APIs are controlled in these tests; they do not replace browser checks.
 
 For UI changes, check desktop and narrow layouts, keyboard and touch controls, all three independent tasks, invalid and cancelled photo replacements, task switching and the saved image against the preview. For annual-entry changes, open both built paths directly, reload asset links and check browser history. Before publishing, verify saving and cancellation on real phones and in-app browsers, actual personal-profile cropping and social link cards. Confirm first-time users understand the purpose and next action; a working download does not establish adoption.
 
