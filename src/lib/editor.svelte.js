@@ -19,9 +19,10 @@ export const editor = $state({
   get error() { return this.frameError || this.photoError || this.renderError; },
   get frameReady() { return this.preset !== null || this.frame !== null; },
   get saving() { return this.saveStatus === 'saving'; },
-  get canDownload() {
-    return this.hasPhoto && this.frameReady && !this.busy && !this.rendering && !this.saving && previewVersion === this.version;
+  get outputReady() {
+    return this.hasPhoto && this.frameReady && !this.busy && !this.rendering && previewVersion === this.version;
   },
+  get canDownload() { return this.outputReady && !this.saving; },
 });
 
 const ownedUrls = new Set();
@@ -198,24 +199,6 @@ export async function save(url, filename) {
   editor.saveStatus = 'saving'; editor.saveError = ''; editor.saveTarget = filename;
   let temporaryUrl;
   try {
-    let blob = url instanceof Blob ? url : null;
-    if (navigator.share && navigator.canShare && matchMedia('(pointer: coarse)').matches) {
-      if (!blob) {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('image unavailable');
-        blob = await response.blob();
-      }
-      const file = new File([blob], filename, { type: blob.type });
-      // Fetching/encoding may consume transient activation; ordinary download still works.
-      if (navigator.userActivation?.isActive !== false && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file] });
-          return editor.saveStatus = 'shared';
-        } catch (error) {
-          if (error.name === 'AbortError') return editor.saveStatus = 'cancelled';
-        }
-      }
-    }
     const a = document.createElement('a');
     a.href = typeof url === 'string' ? url : (temporaryUrl = objectUrl(url));
     a.download = filename;
@@ -239,6 +222,44 @@ export async function download() {
   const blob = previewVersion === version ? previewBlob : await exportPreview();
   if (!blob || version !== editor.version || editor.busy) return 'unavailable';
   return save(blob, AVATAR.file);
+}
+
+export function supportsSharing() {
+  try {
+    return typeof navigator.share === 'function' && typeof navigator.canShare === 'function'
+      && navigator.canShare({ files: [new File([], 'image.png', { type: 'image/png' })] });
+  } catch { return false; }
+}
+
+export async function prepareShare(url, filename) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('image unavailable');
+  const blob = await response.blob();
+  if (!blob.size || !blob.type.startsWith('image/')) throw new Error('invalid image');
+  return new File([blob], filename, { type: blob.type });
+}
+
+export async function share(file) {
+  if (editor.saving) return 'unavailable';
+  editor.saveStatus = 'saving'; editor.saveError = ''; editor.saveTarget = file instanceof File ? file.name : '';
+  try {
+    if (!(file instanceof File) || !file.size || !file.type.startsWith('image/')
+      || typeof navigator.share !== 'function' || typeof navigator.canShare !== 'function'
+      || navigator.userActivation?.isActive === false || !navigator.canShare({ files: [file] })) {
+      throw new Error('cannot share');
+    }
+    await navigator.share({ files: [file] });
+    return editor.saveStatus = 'shared';
+  } catch (error) {
+    if (error?.name === 'AbortError') return editor.saveStatus = 'cancelled';
+    editor.saveError = '無法分享，請改用下載。';
+    return editor.saveStatus = 'error';
+  }
+}
+
+export function shareAvatar() {
+  if (!editor.canDownload) return Promise.resolve('unavailable');
+  return share(new File([previewBlob], AVATAR.file, { type: previewBlob.type }));
 }
 
 let initialization;

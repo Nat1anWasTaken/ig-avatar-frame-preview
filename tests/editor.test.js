@@ -11,7 +11,7 @@ const compiled = compileModule(readFileSync(new URL('../src/lib/editor.svelte.js
 
 function setup({ frameKey = 'sitcon-2027', avatarFile = 'sitcon-2027-avatar.png' } = {}) {
   const urls = new Map(), revoked = new Set(), timers = new Map();
-  const images = [], exports = [], downloads = [], shares = [];
+  const images = [], exports = [], downloads = [], shares = [], fetches = [];
   let nextUrl = 0, nextTimer = 0;
   let drawing = [];
   const canvas = {
@@ -22,7 +22,7 @@ function setup({ frameKey = 'sitcon-2027', avatarFile = 'sitcon-2027-avatar.png'
     toBlob: (callback) => { exports.push({ callback, contents: JSON.stringify(drawing) }); },
   };
   const navigator = { userActivation: { isActive: true } };
-  const io = { coarse: false, fetchError: false, shareError: null };
+  const io = { fetchError: false, fetchGate: null, fetchType: 'image/png', fetchContents: 'banner', shareError: null };
   const context = {
     Blob, File, console, tick: () => Promise.resolve(),
     pub: (path) => `/social-kit/${path}`,
@@ -51,15 +51,16 @@ function setup({ frameKey = 'sitcon-2027', avatarFile = 'sitcon-2027-avatar.png'
       body: { append() {} },
     },
     navigator,
-    matchMedia: () => ({ matches: io.coarse }),
     fetch: async (url) => {
+      fetches.push(url);
+      if (io.fetchGate) await io.fetchGate;
       if (io.fetchError) return { ok: false };
-      return { ok: true, blob: async () => urls.get(url) || new Blob(['banner'], { type: 'image/png' }) };
+      return { ok: true, blob: async () => urls.get(url) || new Blob([io.fetchContents], { type: io.fetchType }) };
     },
     setTimeout(fn, delay) { const id = ++nextTimer; timers.set(id, { fn, delay }); return id; },
     clearTimeout(id) { timers.delete(id); },
   };
-  const api = runInNewContext(`${compiled}\n({ editor, init, setPhoto, setFrameFile, choosePreset, pan, setZoom, resetCrop, download, save });`, context);
+  const api = runInNewContext(`${compiled}\n({ editor, init, setPhoto, setFrameFile, choosePreset, pan, setZoom, resetCrop, download, save, supportsSharing, prepareShare, share, shareAvatar });`, context);
   function load(name, { fail = false, width = 1200, height = 900 } = {}) {
     const image = images.find((item) => !item.done && (item.src === name || urls.get(item.src)?.name === name));
     assert.ok(image, `pending image ${name}`);
@@ -88,11 +89,10 @@ function setup({ frameKey = 'sitcon-2027', avatarFile = 'sitcon-2027-avatar.png'
     await pending;
   }
   function enableSharing() {
-    io.coarse = true;
     navigator.canShare = () => true;
     navigator.share = async (data) => { shares.push(data); if (io.shareError) throw io.shareError; };
   }
-  return { ...api, urls, revoked, exports, downloads, shares, navigator, io, load, runTimers, finishExport, photo, enableSharing };
+  return { ...api, urls, revoked, exports, downloads, shares, fetches, navigator, io, load, runTimers, finishExport, photo, enableSharing };
 }
 
 test('the initialized sample is never a downloadable personal avatar', async () => {
@@ -106,7 +106,10 @@ test('the initialized sample is never a downloadable personal avatar', async () 
   assert.equal(h.editor.photoThumb, '');
   assert.equal(h.editor.canDownload, false);
   assert.equal(await h.download(), 'unavailable');
+  h.enableSharing();
+  assert.equal(await h.shareAvatar(), 'unavailable');
   assert.equal(h.downloads.length, 0);
+  assert.equal(h.shares.length, 0);
 });
 
 for (const file of ['sitcon-2027-facebook-cover.png', 'sitcon-2027-line-background.png']) {
@@ -272,27 +275,207 @@ test('failed encoding reports an error and a later render can recover', async ()
   assert.equal(h.editor.canDownload, true);
 });
 
-test('cancelled sharing does not silently download, and expired activation falls back', async () => {
+test('a failed new export leaves the old preview URL unusable as the current output', async () => {
   const h = setup();
   h.enableSharing();
-  h.io.shareError = { name: 'AbortError' };
-  const blob = new Blob(['image'], { type: 'image/png' });
-  assert.equal(await h.save(blob, 'cover.png'), 'cancelled');
-  assert.equal(h.downloads.length, 0);
-  assert.equal(h.editor.saveError, '');
-  h.navigator.userActivation.isActive = false;
-  assert.equal(await h.save(blob, 'cover.png'), 'download-requested');
-  assert.equal(h.shares.length, 1);
-  assert.equal(h.downloads.length, 1);
+  await h.photo(); h.runTimers();
+  const blob = h.finishExport();
+  const url = h.editor.avatarUrl;
+  assert.equal(h.editor.outputReady, true);
+  h.setZoom(2); h.runTimers(); h.finishExport(0, true);
+  assert.equal(h.editor.avatarUrl, url);
+  assert.equal(h.urls.get(url), blob);
+  assert.equal(h.editor.rendering, false);
+  assert.equal(h.editor.outputReady, false);
+  assert.equal(h.editor.canDownload, false);
+  assert.equal(await h.shareAvatar(), 'unavailable');
+  assert.equal(h.shares.length, 0);
 });
 
-test('saving covers is independent of a photo and reports unavailable assets', async () => {
+test('all artwork downloads bypass sharing and fetch even when sharing is supported', async () => {
   const h = setup();
+  h.enableSharing();
+  h.io.fetchError = true;
   assert.equal(await h.save('/cover.png', 'cover.png'), 'download-requested');
+  assert.equal(await h.save('/background.png', 'background.png'), 'download-requested');
   assert.equal(h.editor.hasPhoto, false);
-  h.enableSharing(); h.io.fetchError = true;
-  assert.equal(await h.save('/missing.png', 'missing.png'), 'error');
-  assert.ok(h.editor.saveError);
+  await h.photo(); h.runTimers();
+  const blob = h.finishExport();
+  assert.equal(await h.download(), 'download-requested');
+  assert.deepEqual(h.downloads.map((item) => item.filename), ['cover.png', 'background.png', 'sitcon-2027-avatar.png']);
+  assert.equal(h.downloads[2].blob, blob);
+  assert.equal(h.shares.length, 0);
+  assert.equal(h.fetches.length, 0);
+});
+
+test('sharing support checks PNG files without depending on device type', () => {
+  const h = setup();
+  assert.equal(h.supportsSharing(), false);
+  h.enableSharing();
+  h.navigator.canShare = ({ files }) => {
+    assert.equal(files.length, 1);
+    assert.ok(files[0] instanceof File);
+    assert.equal(files[0].type, 'image/png');
+    return true;
+  };
+  assert.equal(h.supportsSharing(), true);
+  h.navigator.canShare = () => false;
+  assert.equal(h.supportsSharing(), false);
+  h.navigator.canShare = () => { throw new Error('unsupported'); };
+  assert.equal(h.supportsSharing(), false);
+});
+
+test('preparing a share preserves feedback and does not block downloads while fetching', async () => {
+  const h = setup();
+  await h.save('/cover.png', 'cover.png');
+  let finishFetch;
+  h.io.fetchGate = new Promise((resolve) => { finishFetch = resolve; });
+  const pending = h.prepareShare('/background.png', 'background.png');
+  assert.equal(h.editor.saveStatus, 'download-requested');
+  assert.equal(h.editor.saveTarget, 'cover.png');
   assert.equal(h.editor.saving, false);
-  assert.equal(h.editor.saveTarget, 'missing.png');
+  assert.equal(await h.save('/background.png', 'background.png'), 'download-requested');
+  finishFetch();
+  const file = await pending;
+  assert.ok(file instanceof File);
+  assert.equal(file.name, 'background.png');
+  assert.equal(file.type, 'image/png');
+  assert.equal(await file.text(), 'banner');
+  assert.equal(h.editor.saveStatus, 'download-requested');
+  assert.equal(h.editor.saveTarget, 'background.png');
+  assert.equal(h.shares.length, 0);
+  assert.equal(h.downloads.length, 2);
+});
+
+test('failed or invalid share preparation can retry without changing download state', async () => {
+  const h = setup();
+  h.io.fetchError = true;
+  await assert.rejects(h.prepareShare('/cover.png', 'cover.png'), /image unavailable/);
+  assert.equal(h.editor.saveStatus, 'idle');
+  assert.equal(h.editor.saveError, '');
+  assert.equal(await h.save('/cover.png', 'cover.png'), 'download-requested');
+  h.io.fetchError = false; h.io.fetchType = 'text/html';
+  await assert.rejects(h.prepareShare('/cover.png', 'cover.png'), /invalid image/);
+  h.io.fetchType = 'image/png'; h.io.fetchContents = '';
+  await assert.rejects(h.prepareShare('/cover.png', 'cover.png'), /invalid image/);
+  h.io.fetchContents = 'recovered';
+  const file = await h.prepareShare('/cover.png', 'cover.png');
+  assert.equal(await file.text(), 'recovered');
+  assert.equal(h.editor.saveStatus, 'download-requested');
+  assert.equal(h.editor.saveTarget, 'cover.png');
+  assert.equal(h.editor.saving, false);
+  assert.equal(h.shares.length, 0);
+});
+
+test('sharing calls the browser synchronously with the exact prepared file', async () => {
+  const h = setup();
+  h.enableSharing();
+  const file = await h.prepareShare('/cover.png', 'cover.png');
+  const pending = h.share(file);
+  assert.equal(h.shares.length, 1);
+  assert.equal(h.shares[0].files[0], file);
+  assert.deepEqual(Object.keys(h.shares[0]), ['files']);
+  assert.equal(h.editor.saving, true);
+  assert.equal(await pending, 'shared');
+  assert.equal(h.editor.saveTarget, 'cover.png');
+  assert.equal(h.editor.saveError, '');
+  assert.equal(h.downloads.length, 0);
+});
+
+test('cancelled, rejected, or expired sharing never silently downloads', async () => {
+  const h = setup();
+  h.enableSharing();
+  const file = new File(['image'], 'cover.png', { type: 'image/png' });
+  h.io.shareError = { name: 'AbortError' };
+  assert.equal(await h.share(file), 'cancelled');
+  assert.equal(h.editor.saveError, '');
+  h.io.shareError = { name: 'DataError' };
+  assert.equal(await h.share(file), 'error');
+  assert.equal(h.editor.saveError, '無法分享，請改用下載。');
+  h.io.shareError = null; h.navigator.userActivation.isActive = false;
+  assert.equal(await h.share(file), 'error');
+  assert.equal(h.shares.length, 2);
+  assert.equal(h.editor.saving, false);
+  assert.equal(h.downloads.length, 0);
+  assert.equal(h.fetches.length, 0);
+});
+
+test('sharing rejects invalid files and checks actual file support', async () => {
+  const h = setup();
+  h.enableSharing();
+  const file = new File(['image'], 'cover.png', { type: 'image/png' });
+  assert.equal(await h.share(new Blob(['image'], { type: 'image/png' })), 'error');
+  assert.equal(await h.share(new File([], 'empty.png', { type: 'image/png' })), 'error');
+  assert.equal(await h.share(new File(['text'], 'text.txt', { type: 'text/plain' })), 'error');
+  h.navigator.canShare = ({ files }) => files[0] !== file;
+  assert.equal(h.supportsSharing(), true);
+  assert.equal(await h.share(file), 'error');
+  assert.equal(h.shares.length, 0);
+  assert.equal(h.downloads.length, 0);
+});
+
+test('avatar sharing uses the latest confirmed output without starting an export', async () => {
+  const h = setup();
+  h.enableSharing();
+  await h.photo(); h.runTimers(); h.finishExport();
+  h.setZoom(2); h.pan(40, 50);
+  assert.equal(await h.shareAvatar(), 'unavailable');
+  assert.equal(h.exports.length, 0);
+  assert.equal(h.shares.length, 0);
+  h.runTimers();
+  const blob = h.finishExport();
+  const pending = h.shareAvatar();
+  assert.equal(h.shares.length, 1);
+  assert.equal(await pending, 'shared');
+  const file = h.shares[0].files[0];
+  assert.equal(file.name, 'sitcon-2027-avatar.png');
+  assert.equal(file.type, 'image/png');
+  assert.equal(await file.text(), await blob.text());
+  assert.equal(h.urls.get(h.editor.avatarUrl), blob);
+  assert.equal(h.exports.length, 0);
+  assert.equal(h.fetches.length, 0);
+  assert.equal(h.downloads.length, 0);
+});
+
+test('a pending share keeps the confirmed output ready while preventing another export action', async () => {
+  const h = setup();
+  h.enableSharing();
+  await h.photo(); h.runTimers();
+  const blob = h.finishExport();
+  const url = h.editor.avatarUrl;
+  let finishShare;
+  h.navigator.share = (data) => {
+    h.shares.push(data);
+    return new Promise((resolve) => { finishShare = resolve; });
+  };
+  const pending = h.shareAvatar();
+  assert.equal(h.editor.saving, true);
+  assert.equal(h.editor.outputReady, true);
+  assert.equal(h.editor.canDownload, false);
+  assert.equal(h.editor.avatarUrl, url);
+  assert.equal(h.urls.get(url), blob);
+  assert.equal(await h.shareAvatar(), 'unavailable');
+  assert.equal(h.shares.length, 1);
+  finishShare();
+  assert.equal(await pending, 'shared');
+  assert.equal(h.editor.outputReady, true);
+  assert.equal(h.editor.canDownload, true);
+});
+
+test('avatar sharing preserves the confirmed result after a failed replacement', async () => {
+  const h = setup();
+  h.enableSharing();
+  await h.photo(); h.setZoom(2); h.pan(80, -40); h.runTimers();
+  const blob = h.finishExport();
+  const pending = h.setPhoto(new File(['broken'], 'broken.png', { type: 'image/png' }));
+  assert.equal(await h.shareAvatar(), 'unavailable');
+  h.load('broken.png', { fail: true });
+  assert.equal(await pending, 'error');
+  assert.equal(await h.setPhoto(null), 'cancelled');
+  assert.equal(await h.shareAvatar(), 'shared');
+  assert.equal(await h.shares[0].files[0].text(), await blob.text());
+  assert.equal(h.editor.zoom, 2);
+  assert.equal(h.editor.dx, 80);
+  assert.equal(h.editor.dy, -40);
+  assert.equal(h.downloads.length, 0);
 });

@@ -2,7 +2,7 @@
 
 A browser-only kit for supporting SITCON through personal social media profiles. Choose an avatar frame, a Facebook profile cover or a LINE profile background independently.
 
-- **Avatar:** choose a photo directly from the overview, adjust its position and zoom, then save a 1080 × 1080 PNG. Returning to the overview offers continuing the existing edit. The official frame is preselected; custom frames and no frame are secondary options. The example avatar cannot be downloaded as a personal result.
+- **Avatar:** choose a photo directly from the overview, adjust its position and zoom, then download or share a 1080 × 1080 PNG. Returning to the overview offers continuing the existing edit. The official frame is preselected; custom frames and no frame are secondary options. The example avatar cannot be downloaded or shared as a personal result.
 - **Cover and background:** save the released artwork directly, without choosing a photo. Optional previews show the profile context and possible cropping.
 - **Preview:** compare avatar sizes and optionally inspect redacted Instagram, Facebook and LINE scenes. These are static illustrations, not a guarantee of current platform layouts.
 
@@ -13,6 +13,10 @@ The overview presents all three uses before platform-preview controls, so suppor
 The annual theme supports identification with SITCON while keeping artwork selection central. The theme link goes directly to [the 2027 theme discussion](https://sitcon.org/2027/cfp/#theme). Artwork, layout and concise Taiwan Traditional Chinese labels explain the main actions; detailed help and additional previews are optional.
 
 The app processes photos locally and does not upload them or persist the editing session across reloads. Switching artwork within the page preserves the current photo and crop. A download request or completed system share does not mean the social media profile has been changed. Invitation text uses a neutral invitation and the annual tool URL.
+
+Download and system share are separate actions for all three artwork types. Download always requests a browser download; it never opens the system share sheet. Sharing is shown when file sharing is supported, with files prepared before the click so fetching does not consume the required user activation. Preparation does not block downloading; a failed preparation can be retried, and a cancelled or failed share never starts a download automatically.
+
+The optional “儲存與換圖” disclosure contains a full-image fallback and a short instruction for the selected artwork. “找不到圖片？” after a download opens that artwork's full image directly within the page, preserving the photo and crop. The avatar image uses the same confirmed output as download and sharing. Browser downloads may go to Files rather than Photos; long-press image saving and the share sheet's save options depend on the browser, operating system and installed apps. These controls cannot guarantee saving to the photo library or directly set a social profile.
 
 ## Routes
 
@@ -57,7 +61,7 @@ pnpm preview   # serve the production build locally
 | --- | --- |
 | `index.html`, `2027/index.html`, `vite.config.js` | Static entries, deployment base and sharing metadata |
 | `src/App.svelte`, `src/styles/` | Artwork overview, workspace, invitation and responsive layout |
-| `src/components/Editor.svelte`, `AvatarCanvas.svelte`, `FilePicker.svelte`, `FramePresets.svelte` | Photo selection, crop controls and optional frames |
+| `src/components/Editor.svelte`, `AvatarCanvas.svelte`, `FilePicker.svelte`, `FramePresets.svelte`, `ExportActions.svelte` | Photo selection, crop controls, optional frames and download/share actions |
 | `src/components/SocialPreview.svelte`, `SceneView.svelte`, `Tabs.svelte` | Size comparison and optional platform scenes |
 | `src/lib/editor.svelte.js` | Image composition, asynchronous state, object URLs and saving |
 | `src/campaigns/index.js`, `src/campaigns/<year>/` | Explicit year selection, annual copy, links, released artwork and scoped palette |
@@ -82,9 +86,9 @@ These are properties of the included simulations, not verified platform specific
 
 ## Validation and deployment
 
-`pnpm test` checks asynchronous image state, output consistency, explicit campaign selection, legacy hashes, built entry paths and sharing metadata. Image and sharing APIs are controlled in these tests; they do not replace browser checks.
+`pnpm test` checks asynchronous image state, output consistency, independent download/share behavior, preparation failures, explicit campaign selection, legacy hashes, built entry paths and sharing metadata. Image and sharing APIs are controlled in these tests; they do not replace browser checks.
 
-For UI changes, check desktop and 320/390 px layouts, keyboard and touch controls, all three independent tasks, invalid and cancelled photo replacements, task switching and the saved image against the preview. Check that the overview opens the photo picker directly, cancellation stays in place, and continuing an edit preserves the crop. For annual-entry changes, open both built paths directly, reload asset links and check browser history. Before publishing, verify saving and cancellation on real phones and in-app browsers, actual personal-profile cropping and social link cards. Confirm first-time users understand the purpose and next action; a working download does not establish adoption.
+For UI changes, check desktop and 320/390 px layouts, keyboard and touch controls, all three independent tasks, invalid and cancelled photo replacements, task switching and the saved image against the preview. Check that the overview opens the photo picker directly, cancellation stays in place, and continuing an edit preserves the crop. Exercise download, share preparation/retry, cancelled and failed sharing, and the full-image fallback separately; downloading must remain available during share preparation. For annual-entry changes, open both built paths directly, reload asset links and check browser history. Before publishing, verify saving and cancellation on real phones and in-app browsers, actual personal-profile cropping and social link cards. Confirm users can find the exported image in the target app's picker and understand the next action; a working download does not establish adoption.
 
 Pushing `main` or manually triggering `.github/workflows/deploy.yml` runs `pnpm test` before publishing the `dist/` output to GitHub Pages. A failed build or test prevents deployment. Official website links, short links and social media posts are managed separately; verify their destination and year when coordinating a release.
 

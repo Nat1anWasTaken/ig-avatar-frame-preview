@@ -2,30 +2,34 @@
   import { onMount, tick } from 'svelte';
   import Editor from './components/Editor.svelte';
   import FilePicker from './components/FilePicker.svelte';
+  import ExportActions from './components/ExportActions.svelte';
   import SocialPreview from './components/SocialPreview.svelte';
   import { CAMPAIGN, ARTWORK, pub } from './lib/assets.js';
-  import { editor, save, setPhoto } from './lib/editor.svelte.js';
+  import { editor, setPhoto } from './lib/editor.svelte.js';
   import { artworkFromHash } from './lib/navigation.js';
 
   let selected = $state(artworkFromHash(location.hash) ?? 'avatar');
   let savePlacement = $state('overview');
   let copyStatus = $state('');
   let shareOpen = $state(false);
+  let helpOpen = $state(false);
+  let fullImageOpen = $state(false);
   let photoPlacement = $state('workspace');
   let navigationVersion = 0;
   const current = $derived(ARTWORK.find((item) => item.key === selected));
   const savedArtwork = $derived(ARTWORK.find((item) => item.file === editor.saveTarget));
   const saveMessage = $derived({
-    'saving': '正在準備圖片…',
-    'download-requested': `${savedArtwork?.title ?? '圖片'}下載已送出，接著到社群媒體換上。`,
-    'shared': '已交給系統分享功能；請確認圖片已儲存，再到社群媒體換上。',
-    'cancelled': '已取消，圖片仍保留在這裡。',
+    'saving': '正在交給系統…',
+    'download-requested': '下載已送出',
+    'shared': '已交給系統分享',
+    'cancelled': '分享未完成',
     'error': editor.saveError,
   }[editor.saveStatus] ?? '');
   const shareText = `${CAMPAIGN.invitation}\n${CAMPAIGN.url}`;
 
   async function selectArtwork(key, updateUrl = true) {
     navigationVersion++;
+    if (selected !== key) { helpOpen = false; fullImageOpen = false; }
     selected = key;
     if (updateUrl && location.hash !== `#${key}`) history.pushState(null, '', `#${key}`);
     await tick();
@@ -49,9 +53,14 @@
     }
   }
 
-  async function saveArtwork(item, placement) {
-    savePlacement = placement;
-    await save(item.src, item.file);
+  async function openFullImage(key = selected) {
+    if (key !== selected) await selectArtwork(key);
+    helpOpen = true;
+    fullImageOpen = true;
+    await tick();
+    const image = document.getElementById('full-image');
+    image?.focus({ preventScroll: true });
+    image?.scrollIntoView({ block: 'center' });
   }
 
   async function copyInvitation() {
@@ -72,7 +81,13 @@
 <svelte:window onhashchange={readHash} />
 
 {#snippet feedback()}
-  <p class="save-feedback">{saveMessage}</p>
+  <p class="save-feedback">
+    {#if savePlacement === 'overview' && saveMessage}{savedArtwork?.title}：{/if}{saveMessage}
+    {#if editor.saveStatus === 'download-requested' && savedArtwork}
+      <button class="text-button" type="button" aria-label="找不到圖片？開啟{savedArtwork.title}完整圖片"
+        onclick={() => openFullImage(savedArtwork.key)}>找不到圖片？</button>
+    {/if}
+  </p>
 {/snippet}
 
 <div class="page">
@@ -83,7 +98,7 @@
   </header>
 
   <main>
-    <p class="sr-only" role="status">{saveMessage}</p>
+    <p class="sr-only" role="status">{saveMessage ? `${savedArtwork?.title ?? '圖片'}：${saveMessage}` : ''}</p>
     <section class="intro">
       <p class="eyebrow">學生計算機年會 <span aria-hidden="true">/</span> 社群媒體素材</p>
       <h1>換上 <span>{CAMPAIGN.name}</span></h1>
@@ -119,7 +134,7 @@
                   <FilePicker title="選照片製作" primary compact disabled={editor.saving} onfile={(file) => choosePhoto(file, 'overview')} />
                 {/if}
               {:else}
-                <button class="btn secondary" type="button" disabled={editor.saving} aria-label="儲存圖片：{item.title}" onclick={() => saveArtwork(item, 'overview')}>儲存圖片 <span aria-hidden="true">↓</span></button>
+                <ExportActions {item} compact onaction={() => { savePlacement = 'overview'; }} />
               {/if}
               {#if item.key !== 'avatar'}
                 <button class="preview-link" type="button" aria-label="看套用效果：{item.title}" onclick={() => selectArtwork(item.key)}>看套用效果 <span aria-hidden="true">→</span></button>
@@ -146,24 +161,40 @@
         <div class="work-panel">
           {#if selected === 'avatar'}
             <Editor onphoto={(file) => choosePhoto(file, 'workspace')} photoFeedback={photoPlacement === 'workspace'}>
+              <ExportActions item={current} onaction={() => { savePlacement = 'workspace'; }} />
               {#if savedArtwork?.key === 'avatar'}{@render feedback()}{/if}
             </Editor>
           {:else}
             <div class="banner-editor">
               <h2 id="artwork-title" tabindex="-1">{current.title}</h2>
               <p class="format">{current.width} × {current.height} <span aria-hidden="true">·</span> PNG</p>
-              <figure class="original" class:portrait={selected === 'line'}>
+              <figure id="full-image" class="original" class:portrait={selected === 'line'} tabindex="-1" aria-label="{current.title}完整圖片">
                 <img src={current.src} width={current.width} height={current.height} alt="{current.title}完整圖片" />
-                <figcaption>完整圖片</figcaption>
+                <figcaption>完整圖片{fullImageOpen ? ' · 可長按圖片儲存' : ''}</figcaption>
               </figure>
-              <button class="btn" type="button" disabled={editor.saving} onclick={() => saveArtwork(current, 'workspace')}>{editor.saving ? '儲存中…' : '儲存圖片'} <span aria-hidden="true">↓</span></button>
-              {#if savedArtwork?.key !== 'avatar' && savePlacement === 'workspace'}{@render feedback()}{/if}
+              <ExportActions item={current} onaction={() => { savePlacement = 'workspace'; }} />
+              {#if savedArtwork?.key === selected && savePlacement === 'workspace'}{@render feedback()}{/if}
             </div>
           {/if}
-          <details class="how-to">
-            <summary>如何換上</summary>
-            <p>{selected === 'avatar' ? '儲存圖片後，在社群媒體的個人檔案中更換頭貼。' : selected === 'facebook' ? '儲存圖片後，前往 Facebook 個人檔案更換封面相片，並確認裁切位置。' : '儲存圖片後，前往 LINE 個人主頁更換背景，並確認裁切位置。'}</p>
-            <p>手機可在系統分享選單中儲存圖片；若已下載，請到下載項目或檔案 App 尋找。</p>
+          <details class="how-to" bind:open={helpOpen}>
+            <summary>儲存與換圖</summary>
+            {#if selected !== 'avatar' || editor.hasPhoto}
+              <button class="text-button" type="button" disabled={selected === 'avatar' && !fullImageOpen && !editor.outputReady}
+                onclick={() => { if (selected === 'avatar' && fullImageOpen) fullImageOpen = false; else openFullImage(); }}>
+                {selected === 'avatar' && fullImageOpen ? '收起圖片' : '開啟完整圖片'}
+              </button>
+            {/if}
+            {#if selected === 'avatar' && editor.hasPhoto && fullImageOpen}
+              <figure id="full-image" class="original result" tabindex="-1" aria-label="頭貼完整圖片" aria-busy={!editor.outputReady && !editor.renderError}>
+                {#if editor.outputReady}
+                  <img src={editor.avatarUrl} width="1080" height="1080" alt="包含照片與頭貼框的完整圖片" />
+                  <figcaption>完整圖片 · 可長按圖片儲存</figcaption>
+                {:else}
+                  <div class="result-pending">{editor.renderError ? '圖片尚未準備好' : '正在更新圖片…'}</div>
+                {/if}
+              </figure>
+            {/if}
+            <p>{selected === 'avatar' ? '存好圖片後，到個人檔案更換頭貼。' : selected === 'facebook' ? '存好圖片後，到 Facebook 個人檔案更換封面並確認裁切。' : '存好圖片後，到 LINE 個人主頁更換背景並確認裁切。'}</p>
             {#if selected === 'line'}
               <a href="https://help.line.me/line/?contentId=20000134&lang=zh-Hant" target="_blank" rel="noreferrer">LINE 官方設定說明 ↗</a>
             {:else if selected === 'facebook'}
@@ -257,8 +288,12 @@
   .how-to { margin-top: 20px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
   .how-to p { margin: 8px 0; }
   .how-to a { display: inline-block; margin-top: 4px; color: var(--accent); }
-  .save-feedback { margin: 14px 0 0; font-size: 13px; color: #d7cef6; }
+  .text-button { padding: 6px 0; min-height: 44px; border: 0; background: none; color: var(--accent); text-decoration: underline; text-underline-offset: .25em; }
+  .save-feedback { margin: 10px 0 0; font-size: 13px; color: #d7cef6; }
+  .save-feedback .text-button { margin-left: 8px; }
   .entry-status { margin: 14px 0 0; color: var(--muted); font-size: 13px; }
+  .result { margin-block: 12px; }
+  .result-pending { display: grid; place-items: center; aspect-ratio: 1; border: 1px solid var(--border); border-radius: 8px; }
   .save-feedback:empty { display: none; }
   .invitation { display: grid; grid-template-columns: 1fr 340px; gap: 48px; align-items: start; padding-block: 44px; margin-top: 64px; border-top: 1px solid var(--border); }
   .invitation h2 { margin: 0; font-weight: 500; font-size: 23px; letter-spacing: -.02em; }

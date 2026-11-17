@@ -2,7 +2,7 @@
   import AvatarCanvas from './AvatarCanvas.svelte';
   import FilePicker from './FilePicker.svelte';
   import FramePresets from './FramePresets.svelte';
-  import { editor, setZoom, pan, resetCrop, download } from '../lib/editor.svelte.js';
+  import { editor, setZoom, pan, resetCrop } from '../lib/editor.svelte.js';
 
   let { children, onphoto, photoFeedback = true } = $props();
   const error = $derived(editor.frameError || (photoFeedback ? editor.photoError : '') || editor.renderError);
@@ -62,10 +62,7 @@
       </div>
     </div>
 
-    <button class="btn save" type="button" disabled={!editor.canDownload} onclick={download}>
-      {editor.saving ? '儲存中…' : editor.busy || editor.rendering ? '處理圖片中…' : '儲存頭貼'}
-    </button>
-    {#if children}{@render children()}{/if}
+    <div class="save">{#if children}{@render children()}{/if}</div>
   {/if}
 
   {#if editor.hasPhoto || frameRecovery}
